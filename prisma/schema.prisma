@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  firstName  String
+  lastName String
+  password String
+  posts Post[]
+  conversations Conversation[]
+  messages Message[]
+  sportsInterestId Int
+  sportsInterest Sport @relation(fields: [sportsInterestId], references: [id])
+  friendsOf UsersFriends[] @relation("friend")
+  friends UsersFriends[] @relation("user")
+  communities Community[]
+}
+
+model UsersFriends {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id], name: "user")
+  userId Int
+  friend User @relation(fields: [friendId], references: [id], name: "friend")
+  friendId Int
+}
+
+
+model Conversation {
+  id Int @id @default(autoincrement())
+  users User[]
+  messages Message[]
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  content String
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  conversationId Int
+  sender User @relation(fields: [senderId], references: [id])
+  senderId Int
+}
+
+model Sport {
+  id Int @id @default(autoincrement())
+  name String
+  users User[]
+}
+
+model Community {
+  id Int @id @default(autoincrement())
+  name String
+  users User[]
+  posts Post[]
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+  community Community @relation(fields: [communityId], references: [id])
+  communityId Int
+}
