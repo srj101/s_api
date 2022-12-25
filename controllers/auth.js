@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken";
-import { prisma } from "../prisma/prisma.js";
+import prisma from "../prisma/prisma.js";
 
 // @route POST api/auth/register
 
@@ -19,7 +19,7 @@ export const register = async (req, res, next) => {
       lastName,
     },
   });
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ user }, process.env.JWT_SECRET, {
     expiresIn: 3600,
   });
   res.status(200).json({ token });
@@ -43,7 +43,7 @@ export const login = async (req, res, next) => {
   if (!isMatch) {
     throw createError("Invalid credentials", 400);
   }
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ user }, process.env.JWT_SECRET, {
     expiresIn: 3600,
   });
   res.status(200).json({ token });

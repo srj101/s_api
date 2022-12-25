@@ -1,36 +1,80 @@
 import express from "express";
 import {
-  updateUser,
-  deleteUser,
+  acceptFriendRequest,
+  createConversation,
+  createPost,
+  declineFriendRequest,
+  deleteFriend,
+  deleteFriendRequest,
+  deletePost,
+  getCommunityPostsByUser,
+  getConversation,
+  getConversationsByUser,
+  getFriendRequestReceivedByUser,
+  getFriendRequestSentByUser,
+  getFriends,
+  getMessagesByConversation,
+  getPostsByUser,
   getUser,
-  getUsers,
+  sendFriendRequest,
+  sendMessage,
+  updatePost,
 } from "../controllers/user.js";
 import { verifyAdmin, verifyToken, verifyUser } from "../utils/verifyToken.js";
 
 const router = express.Router();
 
-// router.get("/checkauthentication", verifyToken, (req,res,next)=>{
-//   res.send("hello user, you are logged in")
-// })
+// ---------------------  GET ---------------------
+router.get("/me", verifyUser, getUser);
 
-// router.get("/checkuser/:id", verifyUser, (req,res,next)=>{
-//   res.send("hello user, you are logged in and you can delete your account")
-// })
+// Friend Requests
+router.get("/friends", verifyUser, getFriends);
+router.get(
+  "/friendrequestsRecieved",
+  verifyUser,
+  getFriendRequestReceivedByUser
+);
+router.get("/friendrequestsSent", verifyUser, getFriendRequestSentByUser);
 
-// router.get("/checkadmin/:id", verifyAdmin, (req,res,next)=>{
-//   res.send("hello admin, you are logged in and you can delete all accounts")
-// })
+// Conversation
+router.get("/conversations", verifyUser, getConversationsByUser);
+router.get("/conversations/:id", verifyUser, getConversation);
+router.get(
+  "/messagesByConversation/:id",
+  verifyUser,
+  getMessagesByConversation
+);
 
-//UPDATE
-router.put("/:id", verifyUser, updateUser);
+// Posts
+router.get("/postsByUser/:id", verifyUser, getPostsByUser);
+router.get("communityPostsByUser/:id", verifyUser, getCommunityPostsByUser);
 
-//DELETE
-router.delete("/:id", verifyUser, deleteUser);
+// ---------------------  POST ---------------------
 
-//GET
-router.get("/:id", verifyUser, getUser);
+// Friend Requests
+router.post("/sendFriendRequest/:id", verifyUser, sendFriendRequest);
+router.post("/acceptFriendRequest/:id", verifyUser, acceptFriendRequest);
 
-//GET ALL
-router.get("/", getUsers);
+// Conversation
+router.post("createConversation/:id", verifyUser, createConversation);
+router.post("sendMessage/:id", verifyUser, sendMessage);
+
+// Posts
+router.post("/createPost", verifyUser, createPost);
+
+// ---------------------  UPDATE ---------------------
+// posts
+router.put("/updatePost/:id", verifyUser, updatePost);
+
+// ---------------------  DELETE ---------------------
+// Friend Requests
+router.delete("/declineFriendRequest/:id", verifyUser, declineFriendRequest);
+router.delete("/deleteFriend/:id", verifyUser, deleteFriend);
+router.delete("/deleteFriendRequest/:id", verifyUser, deleteFriendRequest);
+
+// Posts
+router.delete("/deletePost/:id", verifyUser, deletePost);
+
+// ---------------------  PATCH ---------------------
 
 export default router;

@@ -25,6 +25,17 @@ model User {
   friendsOf UsersFriends[] @relation("friend")
   friends UsersFriends[] @relation("user")
   communities Community[]
+  friendRequestsSent FriendRequests[] @relation("sender")
+  friendRequestsReceived FriendRequests[] @relation("receiver")
+
+}
+
+model FriendRequests {
+  id Int @id @default(autoincrement())
+  sender User @relation(fields: [senderId], references: [id], name: "sender")
+  senderId Int
+  receiver User @relation(fields: [receiverId], references: [id], name: "receiver")
+  receiverId Int
 }
 
 model UsersFriends {
