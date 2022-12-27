@@ -15,7 +15,6 @@ import {
   sendFriendRequest,
   sendMessage,
 } from "../controllers/user.js";
-import { verifyUser } from "../utils/verifyToken.js";
 
 const router = express.Router();
 
@@ -24,10 +23,12 @@ router.get("/me", getUser);
 
 // Friend Requests
 router.get("/friends", getFriends);
+
 router.get(
   "/friendrequestsRecieved",
   getFriendRequestReceivedByUser
 );
+
 router.get("/friendrequestsSent", getFriendRequestSent);
 
 // Conversation

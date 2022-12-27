@@ -339,18 +339,15 @@ export const getConversationsByUser = async (req, res, next) => {
   const { id } = req.user;
   const conversations = await prisma.conversation.findMany({
     where: {
-      participants: {
+      users: {
         some: {
           id: parseInt(id),
         },
       },
     },
     include: {
-      participants: {
-        include: {
-          user: true,
-        },
-      },
+      users: true
+
     },
   });
   res.status(200).json({ conversations });
@@ -359,17 +356,13 @@ export const getConversationsByUser = async (req, res, next) => {
 // Route to get a conversation
 export const getConversation = async (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.user;
+  console.log(req.params)
   const conversation = await prisma.conversation.findUnique({
     where: {
-      id,
+      id: parseInt(id),
     },
     include: {
-      participants: {
-        include: {
-          user: true,
-        },
-      },
+      users: true,
     },
   });
   res.status(200).json({ conversation });
@@ -378,10 +371,9 @@ export const getConversation = async (req, res, next) => {
 // Route to get all messages
 export const getMessagesByConversation = async (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.user;
   const messages = await prisma.message.findMany({
     where: {
-      conversationId: id,
+      conversationId: parseInt(id),
     },
     include: {
       sender: true,
@@ -407,21 +399,21 @@ export const getMessagesByUser = async (req, res, next) => {
 // Route to send a message
 export const sendMessage = async (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.user;
+  const { id: userId } = req.user;
   const { message } = req.body;
   const conversation = await prisma.conversation.findUnique({
     where: {
-      id,
+      id: parseInt(id),
     },
   });
   if (!conversation) {
-    throw createError("Conversation does not exist", 400);
+    res.status(400).json({ message: "Conversation not found" })
   }
   const newMessage = await prisma.message.create({
     data: {
-      message,
-      senderId: userId,
-      conversationId: id,
+      content: message,
+      senderId: parseInt(userId),
+      conversationId: parseInt(id),
     },
     include: {
       sender: true,
@@ -495,61 +487,91 @@ export const updatePost = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
   const { title, content } = req.body;
-  const posts = await prisma.post.update({
-    where: {
-      id: parseInt(id),
-    },
-    data: {
-      title,
-      content,
-    },
-    include: {
-      author: true,
-    },
-  });
 
-  if (!posts) {
-    throw createError("Post does not exist", 400);
+  try {
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        author: true,
+      },
+    });
+
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    if (post.author.id !== userId) {
+      res.status(400).json({ message: "You are not authorized to update this post" })
+    }
+
+    const posts = await prisma.post.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        title,
+        content,
+      },
+      include: {
+        author: true,
+      },
+    });
+
+    res.status(200).json({ posts });
+  } catch (error) {
+    res.status(400).json({ error })
   }
 
-  res.status(200).json({ posts });
 };
 
 // Route to delete a post
 export const deletePost = async (req, res, next) => {
   const { id } = req.params;
-  const posts = await prisma.post.delete({
-    where: {
-      id: parseInt(id),
+  const { id: userId } = req.user;
+  const { authorId } = req.body;
+  if (authorId !== userId) {
+    res.status(400).json({ message: "You are not authorized to delete this post" })
+  }
+  try {
+    const posts = await prisma.post.delete({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        author: true,
 
+      },
+    });
+    res.status(200).json({ posts });
 
-    },
-    include: {
-      author: true,
-
-    },
-  });
-  res.status(200).json({ posts });
+  } catch (error) {
+    res.status(400).json({ message: "Post does not exist" })
+  }
 
 };
 
 // Route to get all comments
 export const getCommentsByPost = async (req, res, next) => {
-  const { id } = req.params;
-  const { userId } = req.user;
-  const comments = await prisma.comment.findMany({
-    where: {
-      postId: id,
-    },
-    include: {
-      author: true,
-    },
-  });
+  const { postId } = req.params;
+  try {
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId: parseInt(postId),
+      },
+      include: {
+        author: true,
+      },
+    });
 
-  if (!comments) {
-    throw createError("No comments found", 400);
+    if (!comments) {
+      res.status(400).json({ message: "No comments found" })
+    }
+    res.status(200).json({ comments });
+  } catch (error) {
+    res.status(400).json({ error })
   }
-  res.status(200).json({ comments });
 };
 
 // Route to community posts by user
@@ -573,3 +595,29 @@ export const getCommunityPostsByUser = async (req, res, next) => {
 
   res.status(200).json({ posts });
 };
+
+// Route to get all members of a community
+export const getMembersByCommunity = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const members = await prisma.communityMembers.findMany({
+      where: {
+        communityId: parseInt(id),
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!members) {
+      res.status(400).json({ message: "No members found" })
+    }
+
+
+    res.status(200).json({ members });
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({ error })
+  }
+}
+

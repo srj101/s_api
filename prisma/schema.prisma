@@ -11,8 +11,8 @@ datasource db {
 }
 
 model User {
-  id                     Int              @id @default(autoincrement())
-  email                  String           @unique
+  id                     Int                @id @default(autoincrement())
+  email                  String             @unique
   firstName              String
   lastName               String
   password               String
@@ -20,12 +20,14 @@ model User {
   conversations          Conversation[]
   messages               Message[]
   sportsInterestId       Int?
-  sportsInterest         Sport?           @relation(fields: [sportsInterestId], references: [id])
-  friendsOf              UsersFriends[]   @relation("friend")
-  friends                UsersFriends[]   @relation("user")
-  communities            Community[]
-  friendRequestsSent     FriendRequests[] @relation("sender")
-  friendRequestsReceived FriendRequests[] @relation("receiver")
+  sportsInterest         Sport?             @relation(fields: [sportsInterestId], references: [id])
+  friendsOf              UsersFriends[]     @relation("friend")
+  friends                UsersFriends[]     @relation("user")
+  friendRequestsSent     FriendRequests[]   @relation("sender")
+  friendRequestsReceived FriendRequests[]   @relation("receiver")
+  communitiesOwned       Community[]        @relation("owner")
+  communities            CommunityMembers[] @relation("user")
+  comments               Comment[]
 }
 
 model FriendRequests {
@@ -60,20 +62,30 @@ model Message {
 }
 
 model Sport {
-  id        Int         @id @default(autoincrement())
-  name      String
-  users     User[]
-  Community Community[]
+  id          Int         @id @default(autoincrement())
+  name        String
+  users       User[]
+  communities Community[]
 }
 
 model Community {
-  id          Int    @id @default(autoincrement())
+  id          Int                @id @default(autoincrement())
   name        String
   description String
-  sport       Sport  @relation(fields: [sportId], references: [id])
-  sportId     Int
-  users       User[]
-  posts       Post[]
+  sport       Sport?             @relation(fields: [sportId], references: [id])
+  sportId     Int?
+  posts       Post[]             @relation(name: "communityPost")
+  owner       User               @relation(fields: [ownerId], references: [id], name: "owner")
+  ownerId     Int
+  members     CommunityMembers[] @relation("community")
+}
+
+model CommunityMembers {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id], name: "user", onDelete: Cascade)
+  userId      Int
+  community   Community @relation(fields: [communityId], references: [id], name: "community", onDelete: Cascade)
+  communityId Int
 }
 
 model Post {
@@ -83,6 +95,19 @@ model Post {
   published   Boolean   @default(false)
   author      User      @relation(fields: [authorId], references: [id])
   authorId    Int
-  community   Community @relation(fields: [communityId], references: [id])
+  community   Community @relation(fields: [communityId], references: [id], name: "communityPost", onDelete: Cascade)
   communityId Int
+  comments    Comment[]
+}
+
+model Comment {
+  id       Int       @id @default(autoincrement())
+  content  String
+  author   User      @relation(fields: [authorId], references: [id])
+  authorId Int
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   Int
+  replies  Comment[] @relation("parent")
+  parent   Comment?  @relation("parent", fields: [parentId], references: [id])
+  parentId Int?
 }

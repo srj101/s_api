@@ -24,11 +24,7 @@ app.use("/api/v1/post", verifyToken, postRoute);
 app.use("/api/v1/sport", verifyToken, sportRoute);
 app.use("/api/v1/community", verifyToken, communityRoute);
 
-app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+
 
 app.use((err, req, res, next) => {
   const errorStatus = err.status || 500;
@@ -39,6 +35,12 @@ app.use((err, req, res, next) => {
     message: errorMessage,
     stack: err.stack,
   });
+});
+
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 app.listen(8800, () => {

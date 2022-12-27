@@ -5,11 +5,11 @@ export const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
-    throw createError("Access denied", 401);
+    res.status(401).json({ message: "Access token not found" })
   }
   const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   if (!tokenData) {
-    throw createError("Invalid token", 400);
+    res.status(403).json({ message: "Session Expired!" })
   }
 
   req.user = tokenData.user;
