@@ -17,11 +17,11 @@ router.get("/comunites/:id", getCommunityById);
 router.get("/posts", getPostsByCommunity);
 
 // ---------------------  POST ---------------------
-router.post("createCommunity", verifyUser, createCommunity);
+router.post("/createCommunity", createCommunity);
 
 // ---------------------  PUT ---------------------
 
 // ---------------------  DELETE ---------------------
-router.delete("/deleteCommunity/:id", verifyUser, deleteCommunity);
+router.delete("/deleteCommunity/:id", deleteCommunity);
 
 export default router;

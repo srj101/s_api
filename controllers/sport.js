@@ -32,7 +32,7 @@ export const getSportById = async (req, res, next) => {
   const { id } = req.params;
   const sport = await prisma.sport.findUnique({
     where: {
-      id: id,
+      id: parseInt(id),
     },
   });
 
@@ -53,7 +53,7 @@ export const updateSport = async (req, res, next) => {
   try {
     const sport = await prisma.sport.update({
       where: {
-        id: id,
+        id: parseInt(id),
       },
       data: {
         name,
@@ -70,7 +70,7 @@ export const deleteSport = async (req, res, next) => {
   try {
     const sport = await prisma.sport.delete({
       where: {
-        id: id,
+        id: parseInt(id),
       },
     });
     res.status(200).json({ sport });

@@ -5,10 +5,10 @@ export const getPostsByCommunity = async (req, res, next) => {
   const { communityId, skip, take } = req.query;
   const posts = await prisma.post.findMany({
     where: {
-      communityId: communityId,
+      communityId: parseInt(communityId),
     },
-    skip: skip,
-    take: take,
+    skip: parseInt(skip),
+    take: parseInt(take),
   });
 
   if (!posts) {

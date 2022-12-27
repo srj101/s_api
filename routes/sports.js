@@ -7,7 +7,6 @@ import {
   getSports,
   updateSport,
 } from "../controllers/sport.js";
-import { verifyUser } from "../utils/verifyToken.js";
 
 const router = express.Router();
 
@@ -16,12 +15,12 @@ router.get("/sports", getSports);
 router.get("/sports/:id", getSportById);
 
 // ---------------------  POST ---------------------
-router.post("/createSport", verifyUser, createSport);
+router.post("/createSport", createSport);
 
 // ---------------------  PUT ---------------------
-router.put("/updateSport/:id", verifyUser, updateSport);
+router.put("/updateSport/:id", updateSport);
 
 // ---------------------  DELETE ---------------------
-router.delete("/deleteSport/:id", verifyUser, deleteSport);
+router.delete("/deleteSport/:id", deleteSport);
 
 export default router;

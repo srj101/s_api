@@ -5,6 +5,7 @@ import prisma from "../prisma/prisma.js";
 
 export const createCommunity = async (req, res, next) => {
   const { name, description, sportId } = req.body;
+
   if (!name || !description || !sportId) {
     throw createError("Please enter all fields", 400);
   }
@@ -36,7 +37,8 @@ export const getCommunityById = async (req, res, next) => {
   const { id } = req.params;
   const community = await prisma.community.findUnique({
     where: {
-      id: id,
+      id: parseInt(id),
+
     },
   });
 
@@ -51,7 +53,7 @@ export const deleteCommunity = async (req, res, next) => {
   const { id } = req.params;
   const community = await prisma.community.delete({
     where: {
-      id: id,
+      id: parseInt(id),
     },
   });
 
@@ -59,5 +61,5 @@ export const deleteCommunity = async (req, res, next) => {
     throw createError("Community not found", 400);
   }
 
-  res.status(200).json({ community });
+  res.status(200).json("Community deleted");
 };

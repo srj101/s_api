@@ -1,5 +1,5 @@
 import express from "express";
-import {} from "../controllers/post.js";
+import { } from "../controllers/post.js";
 import {
   createPost,
   deletePost,
@@ -11,16 +11,18 @@ import {
 const router = express.Router();
 
 // ---------------------  GET ---------------------
-router.get("/postsByUser/:id", verifyUser, getPostsByUser);
-router.get("communityPostsByUser/:id", verifyUser, getCommunityPostsByUser);
+router.get("/postsByUser/:id", getPostsByUser);
+
+
+router.get("/communityPostsByUser/:id", getCommunityPostsByUser);
 
 // ---------------------  POST ---------------------
-router.post("/createPost", verifyUser, createPost);
+router.post("/createPost", createPost);
 
 // ---------------------  PUT ---------------------
-router.put("/updatePost/:id", verifyUser, updatePost);
+router.put("/updatePost/:id", updatePost);
 
 // ---------------------  DELETE ---------------------
-router.delete("/deletePost/:id", verifyUser, deletePost);
+router.delete("/deletePost/:id", deletePost);
 
 export default router;

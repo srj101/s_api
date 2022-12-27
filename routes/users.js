@@ -4,11 +4,11 @@ import {
   createConversation,
   declineFriendRequest,
   deleteFriend,
-  deleteFriendRequest,
   getConversation,
   getConversationsByUser,
   getFriendRequestReceivedByUser,
-  getFriendRequestSentByUser,
+  getFriendRequestSent,
+
   getFriends,
   getMessagesByConversation,
   getUser,
@@ -20,43 +20,40 @@ import { verifyUser } from "../utils/verifyToken.js";
 const router = express.Router();
 
 // ---------------------  GET ---------------------
-router.get("/me", verifyUser, getUser);
+router.get("/me", getUser);
 
 // Friend Requests
-router.get("/friends", verifyUser, getFriends);
+router.get("/friends", getFriends);
 router.get(
   "/friendrequestsRecieved",
-  verifyUser,
   getFriendRequestReceivedByUser
 );
-router.get("/friendrequestsSent", verifyUser, getFriendRequestSentByUser);
+router.get("/friendrequestsSent", getFriendRequestSent);
 
 // Conversation
-router.get("/conversations", verifyUser, getConversationsByUser);
-router.get("/conversations/:id", verifyUser, getConversation);
+router.get("/conversations", getConversationsByUser);
+router.get("/conversations/:id", getConversation);
 router.get(
   "/messagesByConversation/:id",
-  verifyUser,
   getMessagesByConversation
 );
 
 // ---------------------  POST ---------------------
 
 // Friend Requests
-router.post("/sendFriendRequest/:id", verifyUser, sendFriendRequest);
-router.post("/acceptFriendRequest/:id", verifyUser, acceptFriendRequest);
+router.post("/sendFriendRequest/:id", sendFriendRequest);
+router.post("/acceptFriendRequest/:id", acceptFriendRequest);
 
 // Conversation
-router.post("createConversation/:id", verifyUser, createConversation);
-router.post("sendMessage/:id", verifyUser, sendMessage);
+router.post("/createConversation", createConversation);
+router.post("/sendMessage/:id", sendMessage);
 
 // ---------------------  UPDATE ---------------------
 
 // ---------------------  DELETE ---------------------
 // Friend Requests
-router.delete("/declineFriendRequest/:id", verifyUser, declineFriendRequest);
-router.delete("/deleteFriend/:id", verifyUser, deleteFriend);
-router.delete("/deleteFriendRequest/:id", verifyUser, deleteFriendRequest);
+router.delete("/declineFriendRequest/:id", declineFriendRequest);
+router.delete("/deleteFriend/:id", deleteFriend);
 
 // ---------------------  PATCH ---------------------
 
