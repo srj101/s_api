@@ -18,6 +18,10 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
+app.get('/', function (req, res) {
+  res.send('Hello World!');
+});
+
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", verifyToken, userRoute);
 app.use("/api/v1/post", verifyToken, postRoute);
@@ -43,6 +47,6 @@ app.use((req, res, next) => {
   next(err);
 });
 
-app.listen(8800, () => {
+app.listen(process.env.PORT, () => {
   console.log("Connected to backend.");
 });
