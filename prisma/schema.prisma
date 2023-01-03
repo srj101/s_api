@@ -71,6 +71,8 @@ model Message {
 model Sport {
   id          Int         @id @default(autoincrement())
   name        String
+  description String?
+  images      String[]
   users       User[]
   communities Community[]
 }
