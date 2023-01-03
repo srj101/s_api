@@ -21,6 +21,7 @@ model User {
   profilePicture String?
   coverPicture   String?
   bio            String?
+  location       String?
 
   posts                  Post[]
   conversations          Conversation[]
