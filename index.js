@@ -18,17 +18,11 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
-
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", verifyToken, userRoute);
 app.use("/api/v1/post", verifyToken, postRoute);
 app.use("/api/v1/sport", verifyToken, sportRoute);
 app.use("/api/v1/community", verifyToken, communityRoute);
-
-
 
 app.use((err, req, res, next) => {
   const errorStatus = err.status || 500;
@@ -42,7 +36,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  const err = new Error('Not Found');
+  const err = new Error("Not Found");
   err.status = 404;
   next(err);
 });

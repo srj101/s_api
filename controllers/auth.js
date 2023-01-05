@@ -9,7 +9,7 @@ export const register = async (req, res, next) => {
   const { email, password, firstName, lastName } = req.body;
   const hashedPassword = await bcrypt.hash(password, 12);
   if (!email || !password || !firstName || !lastName) {
-    res.status(400).json({ message: "Please enter all fields" })
+    res.status(400).json({ message: "Please enter all fields" });
   }
   try {
     const user = await prisma.user.create({
@@ -25,16 +25,15 @@ export const register = async (req, res, next) => {
     });
     res.status(200).json({ token });
   } catch (error) {
-    res.status(400).json({ message: "User already exists" })
+    res.status(400).json({ message: "User already exists" });
   }
-
 };
 
 // @route POST api/auth/login
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(400).json({ message: "Please enter all fields" })
+    res.status(400).json({ message: "Please enter all fields" });
   }
   const user = await prisma.user.findUnique({
     where: {
@@ -42,11 +41,11 @@ export const login = async (req, res, next) => {
     },
   });
   if (!user) {
-    res.status(400).json({ message: "Invalid credentials" })
+    res.status(400).json({ message: "Invalid credentials" });
   }
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    res.status(400).json({ message: "Invalid credentials" })
+    res.status(400).json({ message: "Invalid credentials" });
   }
   const token = jwt.sign({ user }, process.env.JWT_SECRET, {
     expiresIn: 3600,
