@@ -25,7 +25,7 @@ export const register = async (req, res, next) => {
     });
     res.status(200).json({ token });
   } catch (error) {
-    res.status(400).json({ message: "User already exists" });
+    res.status(400).json({ error })
   }
 };
 
