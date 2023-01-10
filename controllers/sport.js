@@ -2,18 +2,12 @@ import { createError } from "../utils/error.js";
 import prisma from "../prisma/prisma.js";
 
 export const getSports = async (req, res, next) => {
-  const { skip, take } = req.query;
   try {
-    const sports = await prisma.sport.findMany({
-      skip: parseInt(skip),
-      take: parseInt(take),
-    });
-
+    const sports = await prisma.sport.findMany();
     res.status(200).json({ sports });
   } catch (error) {
-    res.status(400).json({ message: "Sports not found" });
+    res.status(400).json({ error });
   }
-
 
 };
 
@@ -85,3 +79,23 @@ export const deleteSport = async (req, res, next) => {
     res.status(400).json({ error });
   }
 };
+
+export const sportsUser = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const sports = await prisma.sport.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        users: true,
+      },
+    });
+    res.status(200).json({ sports });
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+}
+
+
