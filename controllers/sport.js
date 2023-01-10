@@ -2,12 +2,18 @@ import { createError } from "../utils/error.js";
 import prisma from "../prisma/prisma.js";
 
 export const getSports = async (req, res, next) => {
+  const { skip, take } = req.query;
   try {
-    const sports = await prisma.sport.findMany();
+    const sports = await prisma.sport.findMany({
+      skip: parseInt(skip),
+      take: parseInt(take),
+    });
+
     res.status(200).json({ sports });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ message: "Sports not found" });
   }
+
 
 };
 
