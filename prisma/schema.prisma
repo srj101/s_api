@@ -81,6 +81,7 @@ model Community {
   id          Int                @id @default(autoincrement())
   name        String
   description String
+  image       String[]
   sport       Sport?             @relation(fields: [sportId], references: [id])
   sportId     Int?
   posts       Post[]             @relation(name: "communityPost")

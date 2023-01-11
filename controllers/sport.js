@@ -2,20 +2,29 @@ import { createError } from "../utils/error.js";
 import prisma from "../prisma/prisma.js";
 
 export const getSports = async (req, res, next) => {
-  const { skip, take } = req.query;
+  console.log("Hello")
+  const { page, limit } = req.query;
+
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+
   try {
     const sports = await prisma.sport.findMany({
-      skip: parseInt(skip),
-      take: parseInt(take),
+      skip: parseInt(offset),
+      take: parseInt(perPage),
     });
+    const total = await prisma.sport.count();
+    console.log(total)
+    res.status(200).json({ sports, total });
 
-    res.status(200).json({ sports });
-  } catch (error) {
-    res.status(400).json({ message: "Sports not found" });
+  }
+  catch (error) {
+    console.log("error:", error)
+    res.status(400).json({ error });
   }
 
-
-};
+}
 
 export const createSport = async (req, res, next) => {
   const { name } = req.body;

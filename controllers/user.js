@@ -31,7 +31,7 @@ export const sendFriendRequest = async (req, res, next) => {
   }
   const friendRequest = await prisma.friendRequests.create({
     data: {
-      senderId: userId,
+      senderId: parseInt(userId),
       receiverId: parseInt(id),
     },
   });
@@ -82,16 +82,20 @@ export const declineFriendRequest = async (req, res, next) => {
 // Route to get friends
 export const getFriends = async (req, res, next) => {
   const { id } = req.user;
-  const friends = await prisma.usersFriends.findMany({
-    where: {
-      id: parseInt(id),
-    },
-    include: {
-      friend: true,
-    },
-  });
-  res.status(200).json({ friends });
-};
+  try {
+    const friends = await prisma.usersFriends.findMany({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        friend: true,
+      },
+    });
+    res.status(200).json({ friends });
+  } catch (error) {
+    res.status(400).json({ error });
+  };
+}
 
 // Route to get friend requests
 export const getFriendRequests = async (req, res, next) => {
