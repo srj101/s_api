@@ -4,7 +4,8 @@ import {
   createCommunity,
   deleteCommunity,
   deleteMember,
-  getCommunites,
+  getCommunities,
+  getCommunitiesByUser,
   getCommunityById,
   joinCommunity,
   leaveCommunity,
@@ -16,11 +17,11 @@ import { getMembersByCommunity } from "../controllers/user.js";
 const router = express.Router();
 
 // ---------------------  GET ---------------------
-router.get("/comunites", getCommunites);
-router.get("/comunites/:id", getCommunityById);
+router.get("/communitiesList", getCommunities);
+router.get("/communities/:id", getCommunityById);
 router.get("/posts", getPostsByCommunity);
 router.get("/members/:id", getMembersByCommunity);
-
+router.get("/communities", getCommunitiesByUser);
 // ---------------------  POST ---------------------
 router.post("/createCommunity", createCommunity);
 router.post("/jointCommunity/:id", joinCommunity);

@@ -31,17 +31,48 @@ export const createCommunity = async (req, res, next) => {
   }
 };
 
-export const getCommunites = async (req, res, next) => {
-  const { skip, take } = req.query;
+export const getCommunitiesByUser = async (req, res, next) => {
+  const { id } = req.user
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+  try {
+    const communities = await prisma.communityMembers.findMany({
+      where: {
+        userId: parseInt(id),
+      },
+      select: {
+        community: true
+      },
+      skip: parseInt(offset),
+      take: parseInt(perPage),
+
+    });
+    res.status(200).json({ communities });
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+
+
+
+}
+
+export const getCommunities = async (req, res, next) => {
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+
   try {
     const communities = await prisma.community.findMany({
-      skip: skip,
-      take: take,
+      skip: parseInt(offset),
+      take: parseInt(perPage),
     });
 
     res.status(200).json({ communities });
   } catch (error) {
-    res.status(400).json({ message: "Community not found" });
+    res.status(400).json({ error });
   }
 };
 

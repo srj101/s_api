@@ -11,7 +11,7 @@ export const getUser = async (req, res, next) => {
   });
 
   if (!user) {
-    throw createError("User does not exist", 400);
+    res.status(400).json({ error: "User does not exist" });
   }
   res.status(200).json({ user });
 };
@@ -27,7 +27,7 @@ export const sendFriendRequest = async (req, res, next) => {
     },
   });
   if (!user) {
-    throw createError("User does not exist", 400);
+    res.status(400).json({ error: "User does not exist" });
   }
   const friendRequest = await prisma.friendRequests.create({
     data: {
@@ -48,7 +48,7 @@ export const acceptFriendRequest = async (req, res, next) => {
     },
   });
   if (!friendRequest) {
-    throw createError("Friend request does not exist", 400);
+    res.status(400).json({ error: "Friend request does not exist" });
   }
   const friend = await prisma.usersFriends.create({
     data: {
@@ -69,7 +69,7 @@ export const declineFriendRequest = async (req, res, next) => {
     },
   });
   if (!friendRequest) {
-    throw createError("Friend request does not exist", 400);
+    res.status(400).json({ error: "Friend request does not exist" });
   }
   const deletedFriendRequest = await prisma.friendRequest.delete({
     where: {
@@ -81,20 +81,33 @@ export const declineFriendRequest = async (req, res, next) => {
 
 // Route to get friends
 export const getFriends = async (req, res, next) => {
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
   const { id } = req.user;
   try {
     const friends = await prisma.usersFriends.findMany({
       where: {
-        id: parseInt(id),
+        userId: parseInt(id),
       },
       include: {
         friend: true,
       },
+
+
+      skip: parseInt(offset),
+      take: parseInt(perPage),
     });
     res.status(200).json({ friends });
-  } catch (error) {
+
+  }
+  catch (error) {
+    console.log("error:", error)
     res.status(400).json({ error });
-  };
+  }
+
+
 }
 
 // Route to get friend requests
@@ -153,7 +166,7 @@ export const deleteFriend = async (req, res, next) => {
     },
   });
   if (!friend) {
-    throw createError("Friend does not exist", 400);
+    res.status(400).json({ error: "Friend does not exist" });
   }
   const deletedFriend = await prisma.usersFriends.delete({
     where: {
@@ -438,7 +451,7 @@ export const getPostsByUser = async (req, res, next) => {
     },
   });
   if (!posts) {
-    throw createError("No posts found", 400);
+    res.status(400).json({ message: "No posts found" })
   }
   res.status(200).json({ posts });
 };
@@ -458,7 +471,7 @@ export const getPost = async (req, res, next) => {
   });
 
   if (!post) {
-    throw createError("Post does not exist", 400);
+    res.status(400).json({ message: "Post does not exist" })
   }
   res.status(200).json({ post });
 };
@@ -481,7 +494,7 @@ export const createPost = async (req, res, next) => {
   });
 
   if (!post) {
-    throw createError("Post does not exist", 400);
+    res.status(400).json({ message: "Post could not be created" })
   }
   res.status(200).json({ post });
 };
@@ -594,7 +607,7 @@ export const getCommunityPostsByUser = async (req, res, next) => {
   });
 
   if (!posts) {
-    throw createError("No posts found", 400);
+    res.status(400).json({ message: "No posts found" })
   }
 
   res.status(200).json({ posts });
