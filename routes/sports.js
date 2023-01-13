@@ -5,6 +5,7 @@ import {
   deleteSport,
   getSportById,
   getSports,
+  sportsFollow,
   sportsUser,
   updateSport,
 } from "../controllers/sport.js";
@@ -18,9 +19,10 @@ router.get("/sports/users/:id", sportsUser);
 // ---------------------  POST ---------------------
 router.post("/createSport", createSport);
 
+
 // ---------------------  PUT ---------------------
 router.put("/updateSport/:id", updateSport);
-
+router.put("/sportsFollow", sportsFollow)
 // ---------------------  DELETE ---------------------
 router.delete("/deleteSport/:id", deleteSport);
 

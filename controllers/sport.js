@@ -4,7 +4,6 @@ import prisma from "../prisma/prisma.js";
 export const getSports = async (req, res, next) => {
   console.log("Hello")
   const { page, limit } = req.query;
-
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
@@ -97,20 +96,84 @@ export const deleteSport = async (req, res, next) => {
 
 export const sportsUser = async (req, res, next) => {
   const { id } = req.params;
-
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+  console.log("Okey From Sports User")
   try {
     const sports = await prisma.sport.findUnique({
       where: {
         id: parseInt(id),
       },
       include: {
-        users: true,
+        users: {
+          skip: parseInt(offset),
+          take: parseInt(perPage),
+        },
       },
     });
-    res.status(200).json({ sports });
-  } catch (error) {
+
+    res.status(200).json({ users: sports.users, total: sports.users.length });
+  }
+  catch (error) {
     res.status(400).json({ error });
   }
 }
 
 
+export const sportsFollow = async (req, res, next) => {
+  const { id } = req.body;
+  const { userId } = req.user;
+  try {
+    const sport = await prisma.sport.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!sport) {
+      res.status(404).json({ message: "Sport not found" });
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(userId),
+      },
+    });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+    }
+    const isFollow = await prisma.sport.findFirst({
+      where: {
+        id: parseInt(id),
+        users: {
+          some: {
+            id: parseInt(userId),
+          },
+        },
+
+      },
+    });
+    if (isFollow) {
+      res.status(200).json({ message: "You are already following this sport" });
+    }
+    const follow = await prisma.sport.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        users: {
+          connect: {
+            id: parseInt(userId),
+          },
+        },
+
+      },
+    });
+
+    res.status(200).json({ follow });
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+
+
+}
