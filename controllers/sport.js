@@ -10,6 +10,7 @@ export const getSports = async (req, res, next) => {
 
   try {
     const sports = await prisma.sport.findMany({
+
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
@@ -61,6 +62,7 @@ export const getSportById = async (req, res, next) => {
 export const updateSport = async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
+
   if (!name) {
     res.status(400).json({ message: "Please enter name fields" })
   }
@@ -100,80 +102,98 @@ export const sportsUser = async (req, res, next) => {
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
-  console.log("Okey From Sports User")
   try {
-    const sports = await prisma.sport.findUnique({
+    const sports = await prisma.sportUsers.findMany({
       where: {
-        id: parseInt(id),
+        sportId: parseInt(id),
       },
       include: {
-        users: {
-          skip: parseInt(offset),
-          take: parseInt(perPage),
-        },
+        user: true
       },
+      skip: parseInt(offset),
+      take: parseInt(perPage),
     });
 
-    res.status(200).json({ users: sports.users, total: sports.users.length });
+    res.status(200).json({ sports });
+  }
+  catch (error) {
+
+    res.status(400).json({ error: error.message });
+  }
+}
+
+
+export const sportsFollow = async (req, res, next) => {
+  const { sportId } = req.body;
+  const { id: userId } = req.user;
+
+  try {
+    const isExits = await prisma.sportUsers.findFirst({
+      where: {
+        sportId: parseInt(sportId),
+        userId: parseInt(userId)
+      }
+    })
+    if (isExits) {
+      res.status(400).json({ message: "Already Followed" });
+    }
+    const sport = await prisma.sportUsers.create({
+      data: {
+        sportId: parseInt(sportId),
+        userId: parseInt(userId)
+      }
+    })
+    res.status(200).json({ sport });
   }
   catch (error) {
     res.status(400).json({ error });
   }
 }
 
-
-export const sportsFollow = async (req, res, next) => {
-  const { id } = req.body;
-  const { userId } = req.user;
+export const isFollowing = async (req, res, next) => {
+  const { sportId } = req.query;
+  const { id: userId } = req.user;
   try {
-    const sport = await prisma.sport.findUnique({
+    const isExits = await prisma.sportUsers.findFirst({
       where: {
-        id: parseInt(id),
-      },
-    });
-    if (!sport) {
-      res.status(404).json({ message: "Sport not found" });
+        sportId: parseInt(sportId),
+        userId: parseInt(userId)
+      }
+    })
+    if (isExits) {
+      res.status(200).json({ isFollowing: true });
     }
-    const user = await prisma.user.findUnique({
-      where: {
-        id: parseInt(userId),
-      },
-    });
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
+    else {
+      res.status(200).json({ isFollowing: false });
     }
-    const isFollow = await prisma.sport.findFirst({
-      where: {
-        id: parseInt(id),
-        users: {
-          some: {
-            id: parseInt(userId),
-          },
-        },
 
-      },
-    });
-    if (isFollow) {
-      res.status(200).json({ message: "You are already following this sport" });
-    }
-    const follow = await prisma.sport.update({
-      where: {
-        id: parseInt(id),
-      },
-      data: {
-        users: {
-          connect: {
-            id: parseInt(userId),
-          },
-        },
-
-      },
-    });
-
-    res.status(200).json({ follow });
-  } catch (error) {
+  }
+  catch (error) {
     res.status(400).json({ error });
   }
+}
 
-
+export const UnFollowSport = async (req, res, next) => {
+  const { sportId } = req.params;
+  const { id: userId } = req.user;
+  try {
+    const isExits = await prisma.sportUsers.findFirst({
+      where: {
+        sportId: parseInt(sportId),
+        userId: parseInt(userId)
+      }
+    })
+    if (!isExits) {
+      res.status(400).json({ message: "Already UnFollowed" });
+    }
+    const sport = await prisma.sportUsers.delete({
+      where: {
+        id: parseInt(isExits.id)
+      }
+    })
+    res.status(200).json({ sport });
+  }
+  catch (error) {
+    res.status(400).json({ error });
+  }
 }

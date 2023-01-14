@@ -11,23 +11,21 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique
-  firstName      String
-  lastName       String
-  password       String
-  dob            DateTime?
-  gender         String?
-  profilePicture String?
-  coverPicture   String?
-  bio            String?
-  location       String?
-
+  id                     Int                @id @default(autoincrement())
+  email                  String             @unique
+  firstName              String
+  lastName               String
+  password               String
+  dob                    DateTime?
+  gender                 String?
+  profilePicture         String?
+  coverPicture           String?
+  bio                    String?
+  location               String?
+  sports                 SportUsers[]       @relation("user")
   posts                  Post[]
   conversations          Conversation[]
   messages               Message[]
-  sportsInterestId       Int?
-  sportsInterest         Sport?             @relation(fields: [sportsInterestId], references: [id])
   friendsOf              UsersFriends[]     @relation("friend")
   friends                UsersFriends[]     @relation("user")
   friendRequestsSent     FriendRequests[]   @relation("sender")
@@ -69,12 +67,20 @@ model Message {
 }
 
 model Sport {
-  id          Int         @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
   description String?
   images      String[]
-  users       User[]
+  users       SportUsers[] @relation("sport")
   communities Community[]
+}
+
+model SportUsers {
+  id      Int   @id @default(autoincrement())
+  user    User  @relation(fields: [userId], references: [id], name: "user")
+  userId  Int
+  sport   Sport @relation(fields: [sportId], references: [id], name: "sport")
+  sportId Int
 }
 
 model Community {
