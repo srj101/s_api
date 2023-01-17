@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -127,7 +131,3 @@ model Comment {
   parent   Comment?  @relation("parent", fields: [parentId], references: [id])
   parentId Int?
 }
-
-// generator erd {
-//   provider = "prisma-erd-generator",
-// }

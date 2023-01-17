@@ -319,6 +319,39 @@ export const getFriendRequestReceivedByUser = async (req, res, next) => {
   });
   res.status(200).json({ friendRequest });
 };
+export const getIsFriend = async (req, res, next) => {
+  let { id } = req.params;
+  let { id: userId } = req.user;
+  id = parseInt(id);
+  userId = parseInt(userId);
+  try {
+    const isFriend = await prisma.usersFriends.findFirst({
+      where: {
+        AND: [
+          {
+            userId: {
+              in: [id, userId],
+            },
+          },
+          {
+            friendId: {
+              in: [id, userId],
+            },
+          },
+        ],
+      },
+    });
+
+    if (!isFriend) return res.status(200).json({ isFriend: false }
+    );
+
+    res.status(200).json({ isFriend: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+}
+
 
 // Route to start a conversation
 export const createConversation = async (req, res, next) => {

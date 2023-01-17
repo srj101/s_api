@@ -10,6 +10,8 @@ import {
   getFriendRequestReceivedByUser,
   getFriendRequestSent,
 
+  getIsFriend,
+
   getMessagesByConversation,
   getUser,
   getUserById,
@@ -40,6 +42,7 @@ router.get(
   "/messagesByConversation/:id",
   getMessagesByConversation
 );
+router.get("/isFriend/:id", getIsFriend)
 
 // ---------------------  POST ---------------------
 
