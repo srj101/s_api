@@ -21,7 +21,25 @@ export const getSports = async (req, res, next) => {
   }
   catch (error) {
     console.log("error:", error)
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
+  }
+
+}
+
+export const findSportsInterestByUserID = async (req, res, next) => {
+  const { id } = req.params
+  try {
+    const interest = await prisma.sportUsers.findMany({
+      where: {
+        userId: parseInt(id)
+      },
+      include: {
+        sport: true
+      }
+    })
+    res.status(200).json({ interest })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
   }
 
 }
@@ -78,7 +96,7 @@ export const updateSport = async (req, res, next) => {
     });
     res.status(200).json({ sport });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 };
 
@@ -92,7 +110,7 @@ export const deleteSport = async (req, res, next) => {
     });
     res.status(200).json({ sport });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 };
 
@@ -146,7 +164,7 @@ export const sportsFollow = async (req, res, next) => {
     res.status(200).json({ sport });
   }
   catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 }
 
@@ -169,7 +187,7 @@ export const isFollowing = async (req, res, next) => {
 
   }
   catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 }
 
@@ -194,6 +212,7 @@ export const UnFollowSport = async (req, res, next) => {
     res.status(200).json({ sport });
   }
   catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 }
+

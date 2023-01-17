@@ -6,12 +6,13 @@ import {
   deleteFriend,
   getConversation,
   getConversationsByUser,
+  getFriendList,
   getFriendRequestReceivedByUser,
   getFriendRequestSent,
 
-  getFriends,
   getMessagesByConversation,
   getUser,
+  getUserById,
   sendFriendRequest,
   sendMessage,
 } from "../controllers/user.js";
@@ -20,9 +21,10 @@ const router = express.Router();
 
 // ---------------------  GET ---------------------
 router.get("/me", getUser);
-
+router.get("/finduser/:id", getUserById);
+router.get("/friendslist", getFriendList);
 // Friend Requests
-router.get("/friends", getFriends);
+
 
 router.get(
   "/friendrequestsRecieved",

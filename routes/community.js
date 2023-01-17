@@ -7,6 +7,8 @@ import {
   getCommunities,
   getCommunitiesByUser,
   getCommunityById,
+  getCommunityOwnerInfo,
+  getMyCommunity,
   joinCommunity,
   leaveCommunity,
   updateCommunity,
@@ -19,9 +21,11 @@ const router = express.Router();
 // ---------------------  GET ---------------------
 router.get("/communitiesList", getCommunities);
 router.get("/communities/:id", getCommunityById);
+router.get("/myCommunities", getMyCommunity);
 router.get("/posts", getPostsByCommunity);
 router.get("/members/:id", getMembersByCommunity);
 router.get("/communities", getCommunitiesByUser);
+router.get("/ownerInfo/:id", getCommunityOwnerInfo);
 // ---------------------  POST ---------------------
 router.post("/createCommunity", createCommunity);
 router.post("/jointCommunity/:id", joinCommunity);

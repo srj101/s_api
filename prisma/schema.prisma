@@ -127,3 +127,7 @@ model Comment {
   parent   Comment?  @relation("parent", fields: [parentId], references: [id])
   parentId Int?
 }
+
+// generator erd {
+//   provider = "prisma-erd-generator",
+// }

@@ -4,17 +4,44 @@ import { createError } from "../utils/error.js";
 
 // @route GET api/auth/user/me
 export const getUser = async (req, res, next) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: req.user.id,
-    },
-  });
+  console.log(req.user.id)
+  const { id } = req.user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
 
-  if (!user) {
-    res.status(400).json({ error: "User does not exist" });
+    });
+
+    if (!user) {
+      res.status(400).json({ error: "User does not exist" });
+    }
+    res.status(200).json({ user });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message })
   }
-  res.status(200).json({ user });
 };
+export const getUserById = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    if (!user) {
+      res.status(400).json({ error: "User does not exist" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+
+}
 
 // Send Friend Request
 export const sendFriendRequest = async (req, res, next) => {
@@ -80,31 +107,31 @@ export const declineFriendRequest = async (req, res, next) => {
 };
 
 // Route to get friends
-export const getFriends = async (req, res, next) => {
-  const { page, limit } = req.query;
+export const getFriendList = async (req, res, next) => {
+  const { page, limit, userId } = req.query;
+  console.log(userId)
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
-  const { id } = req.user;
+
   try {
     const friends = await prisma.usersFriends.findMany({
       where: {
-        userId: parseInt(id),
+        userId: parseInt(userId),
       },
       include: {
         friend: true,
       },
-
-
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
+    console.log(friends)
     res.status(200).json({ friends });
 
   }
   catch (error) {
     console.log("error:", error)
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 
 
@@ -138,20 +165,6 @@ export const getSentFriendRequests = async (req, res, next) => {
   res.status(200).json({ sentFriendRequests });
 };
 
-// Route to get friend
-export const getFriend = async (req, res, next) => {
-  const { id } = req.params;
-  const { userId } = req.user;
-  const friend = await prisma.usersFriends.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      friend: true,
-    },
-  });
-  res.status(200).json({ friend });
-};
 
 // Route to delete friend
 export const deleteFriend = async (req, res, next) => {

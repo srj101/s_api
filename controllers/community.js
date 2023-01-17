@@ -32,7 +32,7 @@ export const createCommunity = async (req, res, next) => {
 };
 
 export const getCommunitiesByUser = async (req, res, next) => {
-  const { id } = req.user
+  const { userId } = req.query;
   const { page, limit } = req.query;
   const currentPage = page || 1;
   const perPage = limit || 10;
@@ -40,7 +40,7 @@ export const getCommunitiesByUser = async (req, res, next) => {
   try {
     const communities = await prisma.communityMembers.findMany({
       where: {
-        userId: parseInt(id),
+        userId: parseInt(userId),
       },
       select: {
         community: true
@@ -63,16 +63,29 @@ export const getCommunities = async (req, res, next) => {
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
+  const { id } = req.user;
 
   try {
-    const communities = await prisma.community.findMany({
+    const communitiesList = await prisma.community.findMany({
+      where: {
+        ownerId: {
+          not: parseInt(id)
+        },
+      },
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
+    console.log(communitiesList)
+    const communities = communitiesList.map((community) => {
+      if (community.ownerId !== parseInt(id)) {
+        return community
+      }
+
+    })
 
     res.status(200).json({ communities });
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 };
 
@@ -82,9 +95,30 @@ export const getCommunityById = async (req, res, next) => {
     const community = await prisma.community.findUnique({
       where: {
         id: parseInt(id),
-
       },
+      select: {
+        description: true,
+        name: true,
+        image: true,
+        ownerId: true,
+        sportId: true,
+        members: true,
+        owner: {
+          select: {
+            firstName: true,
+            lastName: true,
+
+          },
+        },
+        sport: {
+          select: {
+            name: true,
+          }
+        }
+
+      }
     });
+
 
 
     res.status(200).json({ community });
@@ -92,6 +126,55 @@ export const getCommunityById = async (req, res, next) => {
     res.status(400).json({ message: "Community not found" });
   }
 };
+
+export const getMyCommunity = async (req, res, next) => {
+  const { id } = req.user;
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+  try {
+    const communities = await prisma.community.findMany({
+      where: {
+        ownerId: parseInt(id),
+      },
+      skip: parseInt(offset),
+      take: parseInt(perPage)
+    });
+    res.status(200).json({ communities });
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
+export const getCommunityOwnerInfo = async (req, res, next) => {
+  const { id } = req.params;
+  console.log(id)
+  try {
+    const community = await prisma.community.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      select: {
+        ownerId: true,
+      }
+    });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(community.ownerId),
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+      }
+    });
+    console.log(user)
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+}
 
 export const deleteCommunity = async (req, res, next) => {
   const { id } = req.params;
@@ -115,7 +198,7 @@ export const deleteCommunity = async (req, res, next) => {
     res.status(200).json({ community });
   } catch (error) {
     console.log(error)
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 };
 
@@ -199,7 +282,7 @@ export const leaveCommunity = async (req, res, next) => {
 
   catch (error) {
     console.log(error)
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 }
 
@@ -259,7 +342,7 @@ export const deleteMember = async (req, res, next) => {
 
   catch (error) {
     console.log(error)
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 }
 
@@ -291,6 +374,6 @@ export const updateCommunity = async (req, res, next) => {
     res.status(200).json({ community });
   } catch (error) {
     console.log(error)
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message })
   }
 }
