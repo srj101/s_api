@@ -23,6 +23,11 @@
     "prisma": "4.5.0"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "prisma-dbml-generator": "^0.10.0"
+=======
+    "@mermaid-js/mermaid-cli": "^9.3.0",
+    "prisma-erd-generator": "^1.2.5"
+>>>>>>> 10e13018561c54c703ba82137c1025903ce304ad
   }
 }
