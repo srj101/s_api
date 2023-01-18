@@ -2,20 +2,50 @@ import { createError } from "../utils/error.js";
 import prisma from "../prisma/prisma.js";
 
 export const getPostsByCommunity = async (req, res, next) => {
-  const { communityId, skip, take } = req.query;
-  const posts = await prisma.post.findMany({
-    where: {
-      communityId: parseInt(communityId),
-    },
-    skip: parseInt(skip),
-    take: parseInt(take),
-  });
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
 
-  if (!posts) {
-    throw createError("No posts found", 400);
+  const { id } = req.params;
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        communityId: parseInt(id),
+      },
+      select: {
+        title: true,
+        content: true,
+        comments: true,
+        images: true,
+        author:
+        {
+          select: {
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          }
+        },
+        likes: true,
+        dislikes: true,
+
+
+      },
+
+      skip: parseInt(offset),
+      take: parseInt(perPage),
+    });
+
+    if (!posts) {
+      res.status(404).json({ message: "No posts found" });
+    }
+
+    res.status(200).json({ posts });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message })
   }
 
-  res.status(200).json({ posts });
 };
 
 export const deletePost = async (req, res, next) => {

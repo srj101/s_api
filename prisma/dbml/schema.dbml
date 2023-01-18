@@ -25,6 +25,8 @@ Table User {
   communitiesOwned Community [not null]
   communities CommunityMembers [not null]
   comments Comment [not null]
+  likes PostLikes [not null]
+  dislikes PostDislike [not null]
 }
 
 Table FriendRequests {
@@ -98,7 +100,7 @@ Table CommunityMembers {
 
 Table Post {
   id Int [pk, increment]
-  title String [not null]
+  title String
   content String
   published Boolean [not null, default: false]
   author User [not null]
@@ -106,6 +108,25 @@ Table Post {
   community Community [not null]
   communityId Int [not null]
   comments Comment [not null]
+  images String[] [not null]
+  likes PostLikes [not null]
+  dislikes PostDislike [not null]
+}
+
+Table PostLikes {
+  id Int [pk, increment]
+  user User [not null]
+  userId Int [not null]
+  post Post [not null]
+  postId Int [not null]
+}
+
+Table PostDislike {
+  id Int [pk, increment]
+  user User [not null]
+  userId Int [not null]
+  post Post [not null]
+  postId Int [not null]
 }
 
 Table Comment {
@@ -152,6 +173,14 @@ Ref: CommunityMembers.communityId > Community.id [delete: Cascade]
 Ref: Post.authorId > User.id
 
 Ref: Post.communityId > Community.id [delete: Cascade]
+
+Ref: PostLikes.userId > User.id [delete: Cascade]
+
+Ref: PostLikes.postId > Post.id [delete: Cascade]
+
+Ref: PostDislike.userId > User.id [delete: Cascade]
+
+Ref: PostDislike.postId > Post.id [delete: Cascade]
 
 Ref: Comment.authorId > User.id
 

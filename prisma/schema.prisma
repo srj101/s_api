@@ -37,6 +37,8 @@ model User {
   communitiesOwned       Community[]        @relation("owner")
   communities            CommunityMembers[] @relation("user")
   comments               Comment[]
+  likes                  PostLikes[]        @relation("likes")
+  dislikes               PostDislike[]      @relation("dislikes")
 }
 
 model FriendRequests {
@@ -109,15 +111,34 @@ model CommunityMembers {
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
-  title       String
+  id          Int           @id @default(autoincrement())
+  title       String?
   content     String?
-  published   Boolean   @default(false)
-  author      User      @relation(fields: [authorId], references: [id])
+  published   Boolean       @default(false)
+  author      User          @relation(fields: [authorId], references: [id])
   authorId    Int
-  community   Community @relation(fields: [communityId], references: [id], name: "communityPost", onDelete: Cascade)
+  community   Community     @relation(fields: [communityId], references: [id], name: "communityPost", onDelete: Cascade)
   communityId Int
   comments    Comment[]
+  images      String[]
+  likes       PostLikes[]   @relation("likes")
+  dislikes    PostDislike[] @relation("dislikes")
+}
+
+model PostLikes {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id], name: "likes", onDelete: Cascade)
+  userId Int
+  post   Post @relation(fields: [postId], references: [id], name: "likes", onDelete: Cascade)
+  postId Int
+}
+
+model PostDislike {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id], name: "dislikes", onDelete: Cascade)
+  userId Int
+  post   Post @relation(fields: [postId], references: [id], name: "dislikes", onDelete: Cascade)
+  postId Int
 }
 
 model Comment {

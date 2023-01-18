@@ -70,19 +70,34 @@ export const getCommunities = async (req, res, next) => {
       where: {
         ownerId: {
           not: parseInt(id)
-        },
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image: true,
+        ownerId: true,
+        sportId: true,
+        members: {
+          select: {
+            userId: true,
+          }
+        }
+
       },
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
-    console.log(communitiesList)
+
     const communities = communitiesList.map((community) => {
-      if (community.ownerId !== parseInt(id)) {
-        return community
+      const isMember = community.members.some((member) => member.userId === parseInt(id));
+      return {
+        ...community,
+        isMember: isMember,
       }
-
     })
-
+    console.log(communities)
     res.status(200).json({ communities });
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -102,7 +117,18 @@ export const getCommunityById = async (req, res, next) => {
         image: true,
         ownerId: true,
         sportId: true,
-        members: true,
+        members: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profilePicture: true,
+              }
+            }
+          }
+        },
         owner: {
           select: {
             firstName: true,

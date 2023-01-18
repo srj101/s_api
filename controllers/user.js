@@ -119,8 +119,21 @@ export const getFriendList = async (req, res, next) => {
       where: {
         userId: parseInt(userId),
       },
-      include: {
-        friend: true,
+      select: {
+        friend: {
+          select: {
+            firstName: true,
+            lastName: true,
+            sports: {
+              select: {
+                sport: true,
+              }
+            },
+            dob: true,
+            id: true,
+          }
+        },
+
       },
       skip: parseInt(offset),
       take: parseInt(perPage),
@@ -307,17 +320,33 @@ export const getFriendRequestReceived = async (req, res, next) => {
 
 // Route to get a friend request received by a user
 export const getFriendRequestReceivedByUser = async (req, res, next) => {
+  const { page, limit } = req.query;
   const { id } = req.user;
-  const friendRequest = await prisma.friendRequests.findMany({
-    where: {
-      receiverId: parseInt(id)
-    },
-    include: {
-      sender: true,
-      receiver: true,
-    },
-  });
-  res.status(200).json({ friendRequest });
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+  try {
+    const friendRequest = await prisma.friendRequests.findMany({
+      where: {
+        receiverId: parseInt(id),
+
+      },
+      include: {
+        sender: true,
+        receiver: true,
+      },
+      skip: parseInt(offset),
+      take: parseInt(perPage),
+    });
+    res.status(200).json({ friendRequest });
+
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+
+  }
+
+
 };
 export const getIsFriend = async (req, res, next) => {
   let { id } = req.params;
@@ -525,13 +554,17 @@ export const getPost = async (req, res, next) => {
 // Route to create a post
 export const createPost = async (req, res, next) => {
   const { id } = req.user;
-  const { title, content, communityId } = req.body;
+  const { content, images } = req.body;
+  if (images.length < 0 && content.length < 1) {
+    res.status(400).json({ message: "Post must have content or an image" })
+  }
+  const { communityId } = req.query;
   const post = await prisma.post.create({
     data: {
-      title,
       content,
       authorId: parseInt(id),
       communityId: parseInt(communityId),
+      published: true,
     },
     include: {
       author: true,
