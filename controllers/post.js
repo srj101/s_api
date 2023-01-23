@@ -1,6 +1,38 @@
 import { createError } from "../utils/error.js";
 import prisma from "../prisma/prisma.js";
 
+export const getMyPost = async (req, res, next) => {
+  const { id } = req.user;
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        userId: parseInt(id),
+      },
+      select: {
+        createdAt: true,
+        title: true,
+        content: true,
+        comments: true,
+        images: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: parseInt(offset),
+      take: parseInt(perPage),
+    });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+}
+
 export const getPostsByCommunity = async (req, res, next) => {
   const { page, limit } = req.query;
   const currentPage = page || 1;
@@ -14,6 +46,8 @@ export const getPostsByCommunity = async (req, res, next) => {
         communityId: parseInt(id),
       },
       select: {
+        id: true,
+        createdAt: true,
         title: true,
         content: true,
         comments: true,
@@ -21,6 +55,7 @@ export const getPostsByCommunity = async (req, res, next) => {
         author:
         {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
             profilePicture: true,
@@ -30,6 +65,9 @@ export const getPostsByCommunity = async (req, res, next) => {
         dislikes: true,
 
 
+      },
+      orderBy: {
+        createdAt: "desc",
       },
 
       skip: parseInt(offset),

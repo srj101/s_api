@@ -111,6 +111,7 @@ Table Post {
   images String[] [not null]
   likes PostLikes [not null]
   dislikes PostDislike [not null]
+  createdAt DateTime [default: `now()`, not null]
 }
 
 Table PostLikes {

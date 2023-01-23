@@ -31,6 +31,54 @@ export const createCommunity = async (req, res, next) => {
   }
 };
 
+// Route to get all members of a community
+export const getMembersByCommunity = async (req, res, next) => {
+  const { page, limit } = req.query;
+  const { id } = req.params
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+  try {
+    const members = await prisma.community.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+      select: {
+        members: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                profilePicture: true,
+                firstName: true,
+                lastName: true,
+                sports: {
+                  select: {
+                    sport: true,
+                  }
+                }
+              }
+            }
+          },
+        },
+
+      },
+      skip: parseInt(offset),
+      take: parseInt(perPage),
+
+    });
+
+    res.status(200).json({ members });
+
+
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({ error: error.message })
+  }
+}
+
+
 export const getCommunitiesByUser = async (req, res, next) => {
   const { userId } = req.query;
   const { page, limit } = req.query;

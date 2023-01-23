@@ -617,10 +617,263 @@ export const updatePost = async (req, res, next) => {
 
     res.status(200).json({ posts });
   } catch (error) {
-    res.status(400).json({ error })
+    res.status(400).json({ error: error.message })
   }
 
 };
+
+export const IsLiked = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    const isLiked = await prisma.postLikes.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    });
+    if (isLiked) {
+      res.status(200).json({ isLiked: true })
+    }
+    else {
+      res.status(200).json({ isLiked: false })
+    }
+
+
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+
+}
+
+export const IsDisliked = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    const isDisliked = await prisma.postDislike.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    });
+    if (isDisliked) {
+      res.status(200).json({ isDisliked: true })
+    }
+    else {
+      res.status(200).json({ isDisliked: false })
+    }
+
+
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+
+}
+
+export const DisLikePost = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    const postDislike = await prisma.postDislike.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    });
+    if (postDislike) {
+      res.status(400).json({ message: "You have already disliked this post" })
+    };
+
+    const like = await prisma.postLikes.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    })
+    if (like) {
+      await prisma.postLikes.delete({
+        where: {
+          id: parseInt(like.id)
+        }
+      })
+    }
+
+    const newDisLike = await prisma.postDislike.create({
+      data: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      },
+      include: {
+        user: true,
+      },
+    });
+    res.status(200).json({ newDisLike });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+
+
+}
+export const LikePost = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+  console.log(id, userId)
+
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id)
+      }
+    })
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    const like = await prisma.postLikes.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    });
+    if (like) {
+      res.status(400).json({ message: "You have already liked this post" })
+    }
+
+    const disklike = await prisma.postDislike.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    })
+    if (disklike) {
+      await prisma.postDislike.delete({
+        where: {
+          id: parseInt(disklike.id)
+        }
+      })
+    }
+
+    const newLike = await prisma.postLikes.create({
+      data: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      },
+      include: {
+        user: true,
+      },
+    });
+    res.status(200).json({ newLike });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+
+
+}
+
+export const LikeRemove = async (req, res, next) => {
+  const { id } = req.body;
+  const { id: userId } = req.user;
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    const like = await prisma.postLikes.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    });
+    if (!like) {
+      res.status(400).json({ message: "You have not liked this post" })
+    }
+
+    const newLike = await prisma.postLikes.delete({
+      where: {
+        id: parseInt(like.id)
+
+      }
+    });
+    res.status(200).json({ newLike });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+}
+
+export const DisLikeRemove = async (req, res, next) => {
+  const { id } = req.body;
+  const { id: userId } = req.user;
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!post) {
+      res.status(400).json({ message: "Post does not exist" })
+    }
+    const dislike = await prisma.postDislike.findFirst({
+      where: {
+        postId: parseInt(id),
+        userId: parseInt(userId),
+      }
+    });
+    if (!dislike) {
+      res.status(400).json({ message: "You have not disliked this post" })
+    }
+
+    const newDislike = await prisma.postDislike.delete({
+      where: {
+        id: parseInt(dislike.id)
+      }
+    });
+    res.status(200).json({ newDislike });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+
+}
+
 
 // Route to delete a post
 export const deletePost = async (req, res, next) => {
@@ -693,27 +946,3 @@ export const getCommunityPostsByUser = async (req, res, next) => {
 };
 
 // Route to get all members of a community
-export const getMembersByCommunity = async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    const members = await prisma.communityMembers.findMany({
-      where: {
-        communityId: parseInt(id),
-      },
-      include: {
-        user: true,
-      },
-    });
-
-    if (!members) {
-      res.status(400).json({ message: "No members found" })
-    }
-
-
-    res.status(200).json({ members });
-  } catch (error) {
-    console.log(error)
-    res.status(400).json({ error })
-  }
-}
-

@@ -123,6 +123,7 @@ model Post {
   images      String[]
   likes       PostLikes[]   @relation("likes")
   dislikes    PostDislike[] @relation("dislikes")
+  createdAt   DateTime      @default(now())
 }
 
 model PostLikes {

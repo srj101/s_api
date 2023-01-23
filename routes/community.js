@@ -8,13 +8,14 @@ import {
   getCommunitiesByUser,
   getCommunityById,
   getCommunityOwnerInfo,
+  getMembersByCommunity,
   getMyCommunity,
   joinCommunity,
   leaveCommunity,
   updateCommunity,
 } from "../controllers/community.js";
-import { getPostsByCommunity } from "../controllers/post.js";
-import { getMembersByCommunity } from "../controllers/user.js";
+import { getMyPost, getPostsByCommunity } from "../controllers/post.js";
+
 
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.get("/communitiesList", getCommunities);
 router.get("/communities/:id", getCommunityById);
 router.get("/myCommunities", getMyCommunity);
 router.get("/posts/:id", getPostsByCommunity);
+router.get("/mypost", getMyPost)
 router.get("/members/:id", getMembersByCommunity);
 router.get("/communities", getCommunitiesByUser);
 router.get("/ownerInfo/:id", getCommunityOwnerInfo);
