@@ -22,7 +22,7 @@ export const register = async (req, res, next) => {
       },
     });
     const token = jwt.sign({ user }, process.env.JWT_SECRET, {
-      expiresIn: 3600,
+      expiresIn: '1d',
     });
     res.status(200).json({ token });
   } catch (error) {
@@ -49,7 +49,7 @@ export const login = async (req, res, next) => {
     res.status(400).json({ message: "Invalid credentials" });
   }
   const token = jwt.sign({ user }, process.env.JWT_SECRET, {
-    expiresIn: 3600,
+    expiresIn: '1d',
   });
   res.status(200).json({ token });
 };
