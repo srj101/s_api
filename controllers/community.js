@@ -70,8 +70,6 @@ export const getMembersByCommunity = async (req, res, next) => {
 
     res.status(200).json({ members });
 
-
-
   } catch (error) {
     console.log(error)
     res.status(400).json({ error: error.message })
