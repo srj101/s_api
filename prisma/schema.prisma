@@ -116,10 +116,18 @@ model Post {
   community   Community     @relation(fields: [communityId], references: [id], name: "communityPost", onDelete: Cascade)
   communityId Int
   comments    Comment[]
-  images      String[]
+  images      PostImages[] @relation("images")
   likes       PostLikes[]   @relation("likes")
   dislikes    PostDislike[] @relation("dislikes")
   createdAt   DateTime      @default(now())
+}
+
+model PostImages {
+  id     Int  @id @default(autoincrement())
+  post   Post @relation(fields: [postId], references: [id], name: "images", onDelete: Cascade)
+  postId Int
+  image  String
+  path   String
 }
 
 model PostLikes {

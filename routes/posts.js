@@ -18,6 +18,7 @@ import {
   LikePost,
   LikeRemove,
   updatePost,
+  uploadImages,
 } from "../controllers/user.js";
 
 const router = express.Router();
@@ -32,7 +33,7 @@ router.get("/isLiked/:id", IsLiked);
 router.get("/isDisliked/:id", IsDisliked);
 
 // ---------------------  POST ---------------------
-router.post("/createPost/:id", createPost);
+router.post("/createPost/:id", uploadImages, createPost);
 router.post("/createComment/:postId", createComment);
 router.post("/replyComment/", replyComment);
 router.post("/like/:id", LikePost);

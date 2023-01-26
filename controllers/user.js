@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { upload } from "../index.js";
 import prisma from "../prisma/prisma.js";
 import { createError } from "../utils/error.js";
 
@@ -534,10 +535,8 @@ export const getPost = async (req, res, next) => {
 // Route to create a post
 export const createPost = async (req, res, next) => {
   const { id } = req.user;
-  const { content, images } = req.body;
-  if (images.length < 0 && content.length < 1) {
-    res.status(400).json({ message: "Post must have content or an image" });
-  }
+  const { content } = req.body;
+
   const { communityId } = req.query;
   const post = await prisma.post.create({
     data: {
@@ -556,6 +555,21 @@ export const createPost = async (req, res, next) => {
     res.status(400).json({ message: "Post could not be created" });
   }
   res.status(200).json({ post });
+};
+
+export const uploadImages = async (req, res, next) => {
+  upload.array("images", images.length)(req, res, (err) => {
+    if (req.files.length === 0) {
+      res.status(400).json({ message: "No files were uploaded" });
+    }
+    if (err) {
+      res.status(400).json({ message: err.message });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Files uploaded successfully", files: req.files });
+  });
 };
 
 // Route to update a post
