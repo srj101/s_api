@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 
+import multer from "multer";
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/users.js";
 import postRoute from "./routes/posts.js";
@@ -11,12 +12,23 @@ import cors from "cors";
 import { verifyToken } from "./utils/verifyToken.js";
 
 const app = express();
+export const upload = multer({ dest: "uploads/" });
+
 dotenv.config();
 
 //middlewares
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", verifyToken, userRoute);
