@@ -1,5 +1,10 @@
 import express from "express";
-import { createComment, deleteComment, replyComment } from "../controllers/post.js";
+import {
+  createComment,
+  deleteComment,
+  replyComment,
+  updateComment,
+} from "../controllers/post.js";
 import {
   createPost,
   deletePost,
@@ -21,27 +26,26 @@ const router = express.Router();
 
 router.get("/postsByUser", getPostsByUser);
 
-
 router.get("/communityPostsByUser/:id", getCommunityPostsByUser);
-router.get("/comments/:postId", getCommentsByPost)
-router.get("/isLiked/:id", IsLiked)
-router.get("/isDisliked/:id", IsDisliked)
+router.get("/comments/:postId", getCommentsByPost);
+router.get("/isLiked/:id", IsLiked);
+router.get("/isDisliked/:id", IsDisliked);
 
 // ---------------------  POST ---------------------
 router.post("/createPost/:id", createPost);
-router.post("/createComment/:postId", createComment)
-router.post("/replyComment/", replyComment)
-router.post("/like/:id", LikePost)
-router.post("/dislike/:id", DisLikePost)
-
+router.post("/createComment/:postId", createComment);
+router.post("/replyComment/", replyComment);
+router.post("/like/:id", LikePost);
+router.post("/dislike/:id", DisLikePost);
 
 // ---------------------  PUT ---------------------
 router.put("/updatePost/:id", updatePost);
+router.put("/updateComment/:id", updateComment);
 
 // ---------------------  DELETE ---------------------
 router.delete("/deletePost/:id", deletePost);
 router.delete("/deleteComment/:id", deleteComment);
-router.delete("/likeRemove", LikeRemove)
+router.delete("/likeRemove", LikeRemove);
 router.delete("/dislikeRemove", DisLikeRemove);
 
 export default router;

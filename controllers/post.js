@@ -26,12 +26,10 @@ export const getMyPost = async (req, res, next) => {
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-
-}
+};
 
 export const getPostsByCommunity = async (req, res, next) => {
   const { page, limit } = req.query;
@@ -52,19 +50,16 @@ export const getPostsByCommunity = async (req, res, next) => {
         content: true,
         comments: true,
         images: true,
-        author:
-        {
+        author: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
             profilePicture: true,
-          }
+          },
         },
         likes: true,
         dislikes: true,
-
-
       },
       orderBy: {
         createdAt: "desc",
@@ -79,11 +74,9 @@ export const getPostsByCommunity = async (req, res, next) => {
     }
 
     res.status(200).json({ posts });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-
 };
 
 export const deletePost = async (req, res, next) => {
@@ -105,9 +98,7 @@ export const updatePost = async (req, res, next) => {
   const { title, content } = req.body;
   const { id: userId } = req.user;
 
-
   try {
-
     const checkExist = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
@@ -115,10 +106,8 @@ export const updatePost = async (req, res, next) => {
       },
       select: {
         authorId: true,
-      }
+      },
     });
-
-
 
     if (!checkExist) {
       res.status(404).json({ message: "Post Doesn't Exist" });
@@ -168,7 +157,7 @@ export const createComment = async (req, res, next) => {
 
     res.status(200).json({ comment });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).json({ error });
   }
 };
@@ -195,13 +184,14 @@ export const replyComment = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error });
   }
-}
+};
 
-export const deleteComment = async (req, res, next) => {
+export const updateComment = async (req, res, next) => {
   const { id } = req.params;
+  const { content } = req.body;
   const { id: userId } = req.user;
-  try {
 
+  try {
     const checkExist = await prisma.comment.findFirst({
       where: {
         id: parseInt(id),
@@ -211,16 +201,67 @@ export const deleteComment = async (req, res, next) => {
         postId: {
           select: {
             authorId: true,
-          }
+          },
         },
-      }
+      },
     });
 
     if (!checkExist) {
       res.status(404).json({ message: "Comment Doesn't Exist" });
     }
 
-    if (checkExist.authorId !== userId || checkExist.postId.authorId !== userId) {
+    if (
+      checkExist.authorId !== userId ||
+      checkExist.postId.authorId !== userId
+    ) {
+      res.status(403).json({ message: "You are not authorized!" });
+    }
+
+    if (!content) {
+      res.status(400).json({ message: "Please enter all fields" });
+    }
+
+    const comment = await prisma.comment.update({
+      where: {
+        id: id,
+      },
+      data: {
+        content,
+      },
+    });
+
+    res.status(200).json({ comment });
+  } catch (err) {
+    res.status(400).json({ message: "Something went wrong" });
+  }
+};
+
+export const deleteComment = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+  try {
+    const checkExist = await prisma.comment.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+      select: {
+        authorId: true,
+        postId: {
+          select: {
+            authorId: true,
+          },
+        },
+      },
+    });
+
+    if (!checkExist) {
+      res.status(404).json({ message: "Comment Doesn't Exist" });
+    }
+
+    if (
+      checkExist.authorId !== userId ||
+      checkExist.postId.authorId !== userId
+    ) {
       res.status(403).json({ message: "You are not authorized!" });
     }
 
@@ -233,5 +274,4 @@ export const deleteComment = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error });
   }
-}
-
+};

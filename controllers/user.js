@@ -4,23 +4,21 @@ import { createError } from "../utils/error.js";
 
 // @route GET api/auth/user/me
 export const getUser = async (req, res, next) => {
-  console.log(req.user.id)
+  console.log(req.user.id);
   const { id } = req.user;
   try {
     const user = await prisma.user.findUnique({
       where: {
         id: parseInt(id),
       },
-
     });
 
     if (!user) {
       res.status(400).json({ error: "User does not exist" });
     }
     res.status(200).json({ user });
-
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: error.message });
   }
 };
 export const getUserById = async (req, res, next) => {
@@ -37,16 +35,14 @@ export const getUserById = async (req, res, next) => {
     }
     res.status(200).json({ user });
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: error.message });
   }
-
-
-}
+};
 
 // Send Friend Request
 export const sendFriendRequest = async (req, res, next) => {
   const { id } = req.params;
-  console.log(req.params)
+  console.log(req.params);
   const { id: userId } = req.user;
   const user = await prisma.user.findUnique({
     where: {
@@ -109,7 +105,7 @@ export const declineFriendRequest = async (req, res, next) => {
 // Route to get friends
 export const getFriendList = async (req, res, next) => {
   const { page, limit, userId } = req.query;
-  console.log(userId)
+  console.log(userId);
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
@@ -127,28 +123,23 @@ export const getFriendList = async (req, res, next) => {
             sports: {
               select: {
                 sport: true,
-              }
+              },
             },
             dob: true,
             id: true,
-          }
+          },
         },
-
       },
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
-    console.log(friends)
+    console.log(friends);
     res.status(200).json({ friends });
-
+  } catch (error) {
+    console.log("error:", error);
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    console.log("error:", error)
-    res.status(400).json({ error: error.message })
-  }
-
-
-}
+};
 
 // Route to get friend requests
 export const getFriendRequests = async (req, res, next) => {
@@ -177,7 +168,6 @@ export const getSentFriendRequests = async (req, res, next) => {
   });
   res.status(200).json({ sentFriendRequests });
 };
-
 
 // Route to delete friend
 export const deleteFriend = async (req, res, next) => {
@@ -281,7 +271,6 @@ export const getFriendRequestSent = async (req, res, next) => {
       },
     });
     res.status(200).json({ friendRequest });
-
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -329,7 +318,6 @@ export const getFriendRequestReceivedByUser = async (req, res, next) => {
     const friendRequest = await prisma.friendRequests.findMany({
       where: {
         receiverId: parseInt(id),
-
       },
       include: {
         sender: true,
@@ -339,14 +327,9 @@ export const getFriendRequestReceivedByUser = async (req, res, next) => {
       take: parseInt(perPage),
     });
     res.status(200).json({ friendRequest });
-
-
   } catch (error) {
     res.status(400).json({ error: error.message });
-
   }
-
-
 };
 export const getIsFriend = async (req, res, next) => {
   let { id } = req.params;
@@ -371,16 +354,13 @@ export const getIsFriend = async (req, res, next) => {
       },
     });
 
-    if (!isFriend) return res.status(200).json({ isFriend: false }
-    );
+    if (!isFriend) return res.status(200).json({ isFriend: false });
 
     res.status(200).json({ isFriend: true });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-
-}
-
+};
 
 // Route to start a conversation
 export const createConversation = async (req, res, next) => {
@@ -405,7 +385,9 @@ export const createConversation = async (req, res, next) => {
   });
 
   if (!isFriend) {
-    return res.status(400).json({ message: "You are not friends with this user" })
+    return res
+      .status(400)
+      .json({ message: "You are not friends with this user" });
   }
 
   const conversation = await prisma.conversation.create({
@@ -418,9 +400,8 @@ export const createConversation = async (req, res, next) => {
     },
     select: {
       users: true,
-      messages: true
+      messages: true,
     },
-
   });
 
   res.status(200).json({ conversation });
@@ -438,8 +419,7 @@ export const getConversationsByUser = async (req, res, next) => {
       },
     },
     include: {
-      users: true
-
+      users: true,
     },
   });
   res.status(200).json({ conversations });
@@ -448,7 +428,7 @@ export const getConversationsByUser = async (req, res, next) => {
 // Route to get a conversation
 export const getConversation = async (req, res, next) => {
   const { id } = req.params;
-  console.log(req.params)
+  console.log(req.params);
   const conversation = await prisma.conversation.findUnique({
     where: {
       id: parseInt(id),
@@ -499,7 +479,7 @@ export const sendMessage = async (req, res, next) => {
     },
   });
   if (!conversation) {
-    res.status(400).json({ message: "Conversation not found" })
+    res.status(400).json({ message: "Conversation not found" });
   }
   const newMessage = await prisma.message.create({
     data: {
@@ -526,7 +506,7 @@ export const getPostsByUser = async (req, res, next) => {
     },
   });
   if (!posts) {
-    res.status(400).json({ message: "No posts found" })
+    res.status(400).json({ message: "No posts found" });
   }
   res.status(200).json({ posts });
 };
@@ -546,7 +526,7 @@ export const getPost = async (req, res, next) => {
   });
 
   if (!post) {
-    res.status(400).json({ message: "Post does not exist" })
+    res.status(400).json({ message: "Post does not exist" });
   }
   res.status(200).json({ post });
 };
@@ -556,7 +536,7 @@ export const createPost = async (req, res, next) => {
   const { id } = req.user;
   const { content, images } = req.body;
   if (images.length < 0 && content.length < 1) {
-    res.status(400).json({ message: "Post must have content or an image" })
+    res.status(400).json({ message: "Post must have content or an image" });
   }
   const { communityId } = req.query;
   const post = await prisma.post.create({
@@ -573,7 +553,7 @@ export const createPost = async (req, res, next) => {
   });
 
   if (!post) {
-    res.status(400).json({ message: "Post could not be created" })
+    res.status(400).json({ message: "Post could not be created" });
   }
   res.status(200).json({ post });
 };
@@ -585,7 +565,6 @@ export const updatePost = async (req, res, next) => {
   const { title, content } = req.body;
 
   try {
-
     const post = await prisma.post.findUnique({
       where: {
         id: parseInt(id),
@@ -596,10 +575,12 @@ export const updatePost = async (req, res, next) => {
     });
 
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     if (post.author.id !== userId) {
-      res.status(400).json({ message: "You are not authorized to update this post" })
+      res
+        .status(400)
+        .json({ message: "You are not authorized to update this post" });
     }
 
     const posts = await prisma.post.update({
@@ -617,9 +598,8 @@ export const updatePost = async (req, res, next) => {
 
     res.status(200).json({ posts });
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: error.message });
   }
-
 };
 
 export const IsLiked = async (req, res, next) => {
@@ -633,28 +613,23 @@ export const IsLiked = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     const isLiked = await prisma.postLikes.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
+      },
     });
     if (isLiked) {
-      res.status(200).json({ isLiked: true })
+      res.status(200).json({ isLiked: true });
+    } else {
+      res.status(200).json({ isLiked: false });
     }
-    else {
-      res.status(200).json({ isLiked: false })
-    }
-
-
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: error.message });
   }
-
-
-}
+};
 
 export const IsDisliked = async (req, res, next) => {
   const { id } = req.params;
@@ -667,28 +642,23 @@ export const IsDisliked = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     const isDisliked = await prisma.postDislike.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
+      },
     });
     if (isDisliked) {
-      res.status(200).json({ isDisliked: true })
+      res.status(200).json({ isDisliked: true });
+    } else {
+      res.status(200).json({ isDisliked: false });
     }
-    else {
-      res.status(200).json({ isDisliked: false })
-    }
-
-
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: error.message });
   }
-
-
-}
+};
 
 export const DisLikePost = async (req, res, next) => {
   const { id } = req.params;
@@ -701,30 +671,30 @@ export const DisLikePost = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     const postDislike = await prisma.postDislike.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
+      },
     });
     if (postDislike) {
-      res.status(400).json({ message: "You have already disliked this post" })
-    };
+      res.status(400).json({ message: "You have already disliked this post" });
+    }
 
     const like = await prisma.postLikes.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
-    })
+      },
+    });
     if (like) {
       await prisma.postLikes.delete({
         where: {
-          id: parseInt(like.id)
-        }
-      })
+          id: parseInt(like.id),
+        },
+      });
     }
 
     const newDisLike = await prisma.postDislike.create({
@@ -737,50 +707,46 @@ export const DisLikePost = async (req, res, next) => {
       },
     });
     res.status(200).json({ newDisLike });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-
-
-
-}
+};
 export const LikePost = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
-  console.log(id, userId)
+  console.log(id, userId);
 
   try {
     const post = await prisma.post.findFirst({
       where: {
-        id: parseInt(id)
-      }
-    })
+        id: parseInt(id),
+      },
+    });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     const like = await prisma.postLikes.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
+      },
     });
     if (like) {
-      res.status(400).json({ message: "You have already liked this post" })
+      res.status(400).json({ message: "You have already liked this post" });
     }
 
     const disklike = await prisma.postDislike.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
-    })
+      },
+    });
     if (disklike) {
       await prisma.postDislike.delete({
         where: {
-          id: parseInt(disklike.id)
-        }
-      })
+          id: parseInt(disklike.id),
+        },
+      });
     }
 
     const newLike = await prisma.postLikes.create({
@@ -793,14 +759,10 @@ export const LikePost = async (req, res, next) => {
       },
     });
     res.status(200).json({ newLike });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-
-
-
-}
+};
 
 export const LikeRemove = async (req, res, next) => {
   const { id } = req.body;
@@ -812,31 +774,28 @@ export const LikeRemove = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     const like = await prisma.postLikes.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
+      },
     });
     if (!like) {
-      res.status(400).json({ message: "You have not liked this post" })
+      res.status(400).json({ message: "You have not liked this post" });
     }
 
     const newLike = await prisma.postLikes.delete({
       where: {
-        id: parseInt(like.id)
-
-      }
+        id: parseInt(like.id),
+      },
     });
     res.status(200).json({ newLike });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-
-}
+};
 
 export const DisLikeRemove = async (req, res, next) => {
   const { id } = req.body;
@@ -848,32 +807,28 @@ export const DisLikeRemove = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" })
+      res.status(400).json({ message: "Post does not exist" });
     }
     const dislike = await prisma.postDislike.findFirst({
       where: {
         postId: parseInt(id),
         userId: parseInt(userId),
-      }
+      },
     });
     if (!dislike) {
-      res.status(400).json({ message: "You have not disliked this post" })
+      res.status(400).json({ message: "You have not disliked this post" });
     }
 
     const newDislike = await prisma.postDislike.delete({
       where: {
-        id: parseInt(dislike.id)
-      }
+        id: parseInt(dislike.id),
+      },
     });
     res.status(200).json({ newDislike });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-
-
-}
-
+};
 
 // Route to delete a post
 export const deletePost = async (req, res, next) => {
@@ -881,7 +836,9 @@ export const deletePost = async (req, res, next) => {
   const { id: userId } = req.user;
   const { authorId } = req.body;
   if (authorId !== userId) {
-    res.status(400).json({ message: "You are not authorized to delete this post" })
+    res
+      .status(400)
+      .json({ message: "You are not authorized to delete this post" });
   }
   try {
     const posts = await prisma.post.delete({
@@ -890,36 +847,46 @@ export const deletePost = async (req, res, next) => {
       },
       include: {
         author: true,
-
       },
     });
     res.status(200).json({ posts });
-
   } catch (error) {
-    res.status(400).json({ message: "Post does not exist" })
+    res.status(400).json({ message: "Post does not exist" });
   }
-
 };
 
 // Route to get all comments
 export const getCommentsByPost = async (req, res, next) => {
   const { postId } = req.params;
+
+  const { page, limit } = req.query;
+  const currentPage = page || 1;
+  const perPage = limit || 10;
+  const offset = (currentPage - 1) * perPage;
+
   try {
     const comments = await prisma.comment.findMany({
       where: {
         postId: parseInt(postId),
       },
       include: {
-        author: true,
+        Children: {
+          include: {
+            Children: true,
+          },
+        },
       },
+
+      skip: parseInt(offset),
+      take: parseInt(perPage),
     });
 
     if (!comments) {
-      res.status(400).json({ message: "No comments found" })
+      res.status(400).json({ message: "No comments found" });
     }
     res.status(200).json({ comments });
   } catch (error) {
-    res.status(400).json({ error })
+    res.status(400).json({ error });
   }
 };
 
@@ -939,7 +906,7 @@ export const getCommunityPostsByUser = async (req, res, next) => {
   });
 
   if (!posts) {
-    res.status(400).json({ message: "No posts found" })
+    res.status(400).json({ message: "No posts found" });
   }
 
   res.status(200).json({ posts });
