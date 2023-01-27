@@ -43,64 +43,123 @@ export const getUserById = async (req, res, next) => {
 // Send Friend Request
 export const sendFriendRequest = async (req, res, next) => {
   const { id } = req.params;
-  console.log(req.params);
   const { id: userId } = req.user;
-  const user = await prisma.user.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  if (!user) {
-    res.status(400).json({ error: "User does not exist" });
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!user) {
+      res.status(400).json({ error: "User does not exist" });
+    }
+    const friendRequest = await prisma.friendRequests.create({
+      data: {
+        senderId: parseInt(userId),
+        receiverId: parseInt(id),
+      },
+    });
+    res.status(200).json({ friendRequest });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  const friendRequest = await prisma.friendRequests.create({
-    data: {
-      senderId: parseInt(userId),
-      receiverId: parseInt(id),
-    },
-  });
-  res.status(200).json({ friendRequest });
 };
 
 // Route to accept friend request
 export const acceptFriendRequest = async (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.user;
-  const friendRequest = await prisma.friendRequests.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
-  if (!friendRequest) {
-    res.status(400).json({ error: "Friend request does not exist" });
+  const { id: userId } = req.user;
+  try {
+    const friendRequest = await prisma.friendRequests.findFirst({
+      where: {
+        senderId: parseInt(id),
+        receiverId: parseInt(userId),
+      },
+    });
+    if (!friendRequest) {
+      res.status(400).json({ error: "Friend request does not exist" });
+    }
+    const deletedFriendRequest = await prisma.friendRequests.delete({
+      where: {
+        id: friendRequest.id,
+      },
+    });
+    const friend = await prisma.usersFriends.createMany({
+      data: [
+        {
+          userId: parseInt(userId),
+          friendId: parseInt(id),
+        },
+        {
+          userId: parseInt(id),
+          friendId: parseInt(userId),
+        },
+      ],
+
+
+
+    });
+
+
+
+    res.status(200).json({ friend });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  const friend = await prisma.usersFriends.create({
-    data: {
-      userId: friendRequest.senderId,
-      friendId: friendRequest.receiverId,
-    },
-  });
-  res.status(200).json({ friend });
 };
+
+export const cancleFriendRequest = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+  try {
+    const friendRequest = await prisma.friendRequests.findFirst({
+      where: {
+        senderId: parseInt(userId),
+        receiverId: parseInt(id),
+      },
+    });
+    if (!friendRequest) {
+      res.status(400).json({ error: "Friend request does not exist" });
+    }
+    const deletedFriendRequest = await prisma.friendRequests.delete({
+      where: {
+        id: friendRequest.id,
+      },
+    });
+    res.status(200).json({ deletedFriendRequest });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+}
 
 // Route to decline friend request
 export const declineFriendRequest = async (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.user;
-  const friendRequest = await prisma.friendRequests.findUnique({
-    where: {
-      id,
-    },
-  });
-  if (!friendRequest) {
-    res.status(400).json({ error: "Friend request does not exist" });
+  const { id: userId } = req.user;
+
+  try {
+    const friendRequest = await prisma.friendRequests.findFirst({
+      where: {
+        senderId: parseInt(id),
+        receiverId: parseInt(userId),
+      },
+    });
+    if (!friendRequest) {
+      res.status(400).json({ error: "Friend request does not exist" });
+    }
+    const deletedFriendRequest = await prisma.friendRequests.delete({
+      where: {
+        id: friendRequest.id,
+      },
+    });
+    res.status(200).json({ deletedFriendRequest });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  const deletedFriendRequest = await prisma.friendRequest.delete({
-    where: {
-      id,
-    },
-  });
-  res.status(200).json({ deletedFriendRequest });
+
 };
 
 // Route to get friends
@@ -121,6 +180,8 @@ export const getFriendList = async (req, res, next) => {
           select: {
             firstName: true,
             lastName: true,
+            profilePicture: true,
+            id: true,
             sports: {
               select: {
                 sport: true,
@@ -173,24 +234,42 @@ export const getSentFriendRequests = async (req, res, next) => {
 // Route to delete friend
 export const deleteFriend = async (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.user;
-  const friend = await prisma.usersFriends.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      friend: true,
-    },
-  });
-  if (!friend) {
-    res.status(400).json({ error: "Friend does not exist" });
+  const { id: userId } = req.user;
+  try {
+
+    const friend = await prisma.usersFriends.findFirst({
+      where: {
+        userId: parseInt(userId),
+        friendId: parseInt(id),
+      },
+    });
+
+    if (!friend) {
+      res.status(400).json({ error: "Friend does not exist" });
+    }
+
+    const deletedFriend = await prisma.usersFriends.deleteMany({
+      where: {
+        OR: [
+          {
+            userId: parseInt(userId),
+            friendId: parseInt(id),
+          },
+          {
+            userId: parseInt(id),
+            friendId: parseInt(userId),
+          },
+        ],
+      },
+    });
+
+    res.status(200).json({ deletedFriend });
+
+  } catch (error) {
+
+    res.status(400).json({ error: error.message });
+
   }
-  const deletedFriend = await prisma.usersFriends.delete({
-    where: {
-      id,
-    },
-  });
-  res.status(200).json({ deletedFriend });
 };
 
 // Route to get all friend requests sent
@@ -362,6 +441,63 @@ export const getIsFriend = async (req, res, next) => {
     res.status(400).json({ error: error.message });
   }
 };
+export const getIsFriendReqSent = async (req, res, next) => {
+
+  let { id } = req.params;
+  let { id: userId } = req.user;
+  id = parseInt(id);
+  userId = parseInt(userId);
+  try {
+    const isFriendReqSent = await prisma.friendRequests.findFirst({
+      where: {
+        AND: [
+          {
+            senderId: userId,
+          },
+          {
+            receiverId: id,
+          },
+        ],
+      },
+    });
+
+    if (!isFriendReqSent) return res.status(200).json({ isFriendReqSent: false });
+
+    res.status(200).json({ isFriendReqSent: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+}
+
+export const getIsFriendReqReceived = async (req, res, next) => {
+  let { id } = req.params;
+  let { id: userId } = req.user;
+  id = parseInt(id);
+  userId = parseInt(userId);
+  try {
+    const isFriendReqReceived = await prisma.friendRequests.findFirst({
+      where: {
+        AND: [
+          {
+            senderId: id,
+          },
+          {
+            receiverId: userId,
+          },
+        ],
+      },
+    });
+
+    if (!isFriendReqReceived) return res.status(200).json({ isFriendReqReceived: false });
+
+    res.status(200).json({ isFriendReqReceived: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+}
+
 
 // Route to start a conversation
 export const createConversation = async (req, res, next) => {

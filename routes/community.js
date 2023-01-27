@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  AlreadyMemeber,
   createCommunity,
   deleteCommunity,
   deleteMember,
@@ -28,9 +29,10 @@ router.get("/mypost", getMyPost)
 router.get("/members/:id", getMembersByCommunity);
 router.get("/communities", getCommunitiesByUser);
 router.get("/ownerInfo/:id", getCommunityOwnerInfo);
+router.get("/isAlreadyMemeber/:id", AlreadyMemeber);
 // ---------------------  POST ---------------------
 router.post("/createCommunity", createCommunity);
-router.post("/jointCommunity/:id", joinCommunity);
+router.post("/joinCommunity/:id", joinCommunity);
 // ---------------------  PUT ---------------------
 router.put("/updateCommunity/:id", updateCommunity);
 // ---------------------  DELETE ---------------------

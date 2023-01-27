@@ -1,6 +1,7 @@
 import express from "express";
 import {
   acceptFriendRequest,
+  cancleFriendRequest,
   createConversation,
   declineFriendRequest,
   deleteFriend,
@@ -11,6 +12,10 @@ import {
   getFriendRequestSent,
 
   getIsFriend,
+
+  getIsFriendReqReceived,
+
+  getIsFriendReqSent,
 
   getMessagesByConversation,
   getUser,
@@ -43,6 +48,9 @@ router.get(
   getMessagesByConversation
 );
 router.get("/isFriend/:id", getIsFriend)
+router.get("/isFriendReqReceived/:id", getIsFriendReqReceived)
+router.get("/isFriendReqSent/:id", getIsFriendReqSent)
+
 
 // ---------------------  POST ---------------------
 
@@ -60,6 +68,7 @@ router.post("/sendMessage/:id", sendMessage);
 // Friend Requests
 router.delete("/declineFriendRequest/:id", declineFriendRequest);
 router.delete("/deleteFriend/:id", deleteFriend);
+router.delete("/cancelFriendRequest/:id", cancleFriendRequest)
 
 // ---------------------  PATCH ---------------------
 

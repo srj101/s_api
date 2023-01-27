@@ -79,11 +79,37 @@ export const getMembersByCommunity = async (req, res, next) => {
 
 export const getCommunitiesByUser = async (req, res, next) => {
   const { userId } = req.query;
-  const { page, limit } = req.query;
+  const { page, limit, search } = req.query;
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
+
+
   try {
+
+    if (search) {
+      const communities = await prisma.communityMembers.findMany({
+        where: {
+          userId: parseInt(userId),
+          community: {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            }
+          }
+        },
+        select: {
+          community: true
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+
+      });
+      return res.status(200).json({ communities });
+
+    }
+
+
     const communities = await prisma.communityMembers.findMany({
       where: {
         userId: parseInt(userId),
@@ -95,9 +121,9 @@ export const getCommunitiesByUser = async (req, res, next) => {
       take: parseInt(perPage),
 
     });
-    res.status(200).json({ communities });
+    return res.status(200).json({ communities });
   } catch (error) {
-    res.status(400).json({ error })
+    return res.status(400).json({ error })
   }
 
 
@@ -177,6 +203,7 @@ export const getCommunityById = async (req, res, next) => {
         },
         owner: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
 
@@ -184,6 +211,7 @@ export const getCommunityById = async (req, res, next) => {
         },
         sport: {
           select: {
+            id: true,
             name: true,
           }
         }
@@ -191,9 +219,10 @@ export const getCommunityById = async (req, res, next) => {
       }
     });
 
-
+    // console.log(community)
 
     res.status(200).json({ community });
+
   } catch (error) {
     res.status(400).json({ message: "Community not found" });
   }
@@ -218,7 +247,34 @@ export const getMyCommunity = async (req, res, next) => {
     res.status(400).json({ error: error.message })
   }
 }
+export const AlreadyMemeber = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+  try {
+    const isMember = await prisma.communityMembers.findFirst({
+      where: {
+        AND: [
+          {
+            userId: parseInt(userId),
+          },
+          {
+            communityId: parseInt(id),
+          }
+        ]
+      }
+    })
+    if (isMember) {
+      res.status(200).json({ isMember: true })
+    }
+    else {
+      res.status(200).json({ isMember: false })
+    }
 
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+
+}
 export const getCommunityOwnerInfo = async (req, res, next) => {
   const { id } = req.params;
   console.log(id)
@@ -294,12 +350,13 @@ export const joinCommunity = async (req, res, next) => {
       res.status(400).json({ message: "You are owner of this community" });
     }
 
-    const user = await prisma.communityMembers.findUnique({
+    const alReadyExist = await prisma.communityMembers.findFirst({
       where: {
-        id: parseInt(userId),
+        userId: parseInt(userId),
+        communityId: parseInt(id),
       },
     });
-    if (user) {
+    if (alReadyExist) {
       res.status(409).json({ message: "Already member" });
     }
     const userCommunity = await prisma.communityMembers.create({
@@ -311,7 +368,7 @@ export const joinCommunity = async (req, res, next) => {
     res.status(200).json({ userCommunity });
   } catch (error) {
     console.log(error)
-    res.status(400).json({ message: "Something went wrong" });
+    res.status(400).json({ error: error.message });
   }
 }
 
@@ -345,7 +402,8 @@ export const leaveCommunity = async (req, res, next) => {
 
     const leaveCommunity = await prisma.communityMembers.delete({
       where: {
-        id: parseInt(id),
+        id: isAlreadyMember.id,
+
       },
     });
     res.status(200).json({ leaveCommunity });
