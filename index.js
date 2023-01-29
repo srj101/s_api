@@ -12,7 +12,6 @@ import cors from "cors";
 import { verifyToken } from "./utils/verifyToken.js";
 
 const app = express();
-export const upload = multer({ dest: "uploads/" });
 
 dotenv.config();
 
@@ -26,9 +25,10 @@ var storage = multer.diskStorage({
     cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(null, file.originalname + "-" + Date.now());
   },
 });
+export const upload = multer({ storage: storage });
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", verifyToken, userRoute);

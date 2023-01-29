@@ -7,7 +7,6 @@ export const getSports = async (req, res, next) => {
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
   try {
-
     if (searchQuery) {
       const sports = await prisma.sport.findMany({
         skip: parseInt(offset),
@@ -19,9 +18,8 @@ export const getSports = async (req, res, next) => {
           },
         },
       });
-      return res.status(200).json({ sports, total });
+      return res.status(200).json({ sports });
     }
-
 
     const sports = await prisma.sport.findMany({
       skip: parseInt(offset),

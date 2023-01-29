@@ -27,7 +27,7 @@ export const getMyPost = async (req, res, next) => {
       take: parseInt(perPage),
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -70,12 +70,12 @@ export const getPostsByCommunity = async (req, res, next) => {
     });
 
     if (!posts) {
-      res.status(404).json({ message: "No posts found" });
+      return res.status(404).json({ message: "No posts found" });
     }
 
-    res.status(200).json({ posts });
+    return res.status(200).json({ posts });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -87,9 +87,9 @@ export const deletePost = async (req, res, next) => {
         id: id,
       },
     });
-    res.status(200).json({ post });
+    return res.status(200).json({ post });
   } catch (error) {
-    res.status(400).json({ message: "Something went wrong" });
+    return res.status(400).json({ message: "Something went wrong" });
   }
 };
 
@@ -110,15 +110,15 @@ export const updatePost = async (req, res, next) => {
     });
 
     if (!checkExist) {
-      res.status(404).json({ message: "Post Doesn't Exist" });
+      return res.status(404).json({ message: "Post Doesn't Exist" });
     }
 
     if (checkExist.authorId !== userId) {
-      res.status(403).json({ message: "You are not authorized!" });
+      return res.status(403).json({ message: "You are not authorized!" });
     }
 
     if (!title || !content) {
-      res.status(400).json({ message: "Please enter all fields" });
+      return res.status(400).json({ message: "Please enter all fields" });
     }
 
     const post = await prisma.post.update({
@@ -131,9 +131,9 @@ export const updatePost = async (req, res, next) => {
       },
     });
 
-    res.status(200).json({ post });
+    return res.status(200).json({ post });
   } catch (err) {
-    res.status(400).json({ message: "Something went wrong" });
+    return res.status(400).json({ message: "Something went wrong" });
   }
 };
 
@@ -143,7 +143,7 @@ export const createComment = async (req, res, next) => {
   const { id: userId } = req.user;
 
   if (!content) {
-    res.status(400).json({ message: "Please enter all fields" });
+    return res.status(400).json({ message: "Please enter all fields" });
   }
 
   try {
@@ -155,10 +155,10 @@ export const createComment = async (req, res, next) => {
       },
     });
 
-    res.status(200).json({ comment });
+    return res.status(200).json({ comment });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error });
+    return res.status(400).json({ error });
   }
 };
 
@@ -168,7 +168,7 @@ export const replyComment = async (req, res, next) => {
   const { id: userId } = req.user;
 
   if (!content) {
-    res.status(400).json({ message: "Please enter all fields" });
+    return res.status(400).json({ message: "Please enter all fields" });
   }
 
   try {
@@ -180,9 +180,9 @@ export const replyComment = async (req, res, next) => {
         postId: parseInt(postId),
       },
     });
-    res.status(200).json({ comment });
+    return res.status(200).json({ comment });
   } catch (error) {
-    res.status(400).json({ error });
+    return res.status(400).json({ error });
   }
 };
 
@@ -207,18 +207,18 @@ export const updateComment = async (req, res, next) => {
     });
 
     if (!checkExist) {
-      res.status(404).json({ message: "Comment Doesn't Exist" });
+      return res.status(404).json({ message: "Comment Doesn't Exist" });
     }
 
     if (
       checkExist.authorId !== userId ||
       checkExist.postId.authorId !== userId
     ) {
-      res.status(403).json({ message: "You are not authorized!" });
+      return res.status(403).json({ message: "You are not authorized!" });
     }
 
     if (!content) {
-      res.status(400).json({ message: "Please enter all fields" });
+      return res.status(400).json({ message: "Please enter all fields" });
     }
 
     const comment = await prisma.comment.update({
@@ -230,9 +230,9 @@ export const updateComment = async (req, res, next) => {
       },
     });
 
-    res.status(200).json({ comment });
+    return res.status(200).json({ comment });
   } catch (err) {
-    res.status(400).json({ message: "Something went wrong" });
+    return res.status(400).json({ message: "Something went wrong" });
   }
 };
 
@@ -255,14 +255,14 @@ export const deleteComment = async (req, res, next) => {
     });
 
     if (!checkExist) {
-      res.status(404).json({ message: "Comment Doesn't Exist" });
+      return res.status(404).json({ message: "Comment Doesn't Exist" });
     }
 
     if (
       checkExist.authorId !== userId ||
       checkExist.postId.authorId !== userId
     ) {
-      res.status(403).json({ message: "You are not authorized!" });
+      return res.status(403).json({ message: "You are not authorized!" });
     }
 
     const comment = await prisma.comment.delete({
@@ -270,8 +270,8 @@ export const deleteComment = async (req, res, next) => {
         id: id,
       },
     });
-    res.status(200).json({ comment });
+    return res.status(200).json({ comment });
   } catch (error) {
-    res.status(400).json({ error });
+    return res.status(400).json({ error });
   }
 };

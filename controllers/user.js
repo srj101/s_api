@@ -15,11 +15,11 @@ export const getUser = async (req, res, next) => {
     });
 
     if (!user) {
-      res.status(400).json({ error: "User does not exist" });
+      return res.status(400).json({ error: "User does not exist" });
     }
-    res.status(200).json({ user });
+    return res.status(200).json({ user });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 export const getUserById = async (req, res, next) => {
@@ -32,11 +32,11 @@ export const getUserById = async (req, res, next) => {
     });
 
     if (!user) {
-      res.status(400).json({ error: "User does not exist" });
+      return res.status(400).json({ error: "User does not exist" });
     }
-    res.status(200).json({ user });
+    return res.status(200).json({ user });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -51,7 +51,7 @@ export const sendFriendRequest = async (req, res, next) => {
       },
     });
     if (!user) {
-      res.status(400).json({ error: "User does not exist" });
+      return res.status(400).json({ error: "User does not exist" });
     }
     const friendRequest = await prisma.friendRequests.create({
       data: {
@@ -59,10 +59,9 @@ export const sendFriendRequest = async (req, res, next) => {
         receiverId: parseInt(id),
       },
     });
-    res.status(200).json({ friendRequest });
-
+    return res.status(200).json({ friendRequest });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -78,7 +77,7 @@ export const acceptFriendRequest = async (req, res, next) => {
       },
     });
     if (!friendRequest) {
-      res.status(400).json({ error: "Friend request does not exist" });
+      return res.status(400).json({ error: "Friend request does not exist" });
     }
     const deletedFriendRequest = await prisma.friendRequests.delete({
       where: {
@@ -96,16 +95,11 @@ export const acceptFriendRequest = async (req, res, next) => {
           friendId: parseInt(userId),
         },
       ],
-
-
-
     });
 
-
-
-    res.status(200).json({ friend });
+    return res.status(200).json({ friend });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -120,19 +114,18 @@ export const cancleFriendRequest = async (req, res, next) => {
       },
     });
     if (!friendRequest) {
-      res.status(400).json({ error: "Friend request does not exist" });
+      return res.status(400).json({ error: "Friend request does not exist" });
     }
     const deletedFriendRequest = await prisma.friendRequests.delete({
       where: {
         id: friendRequest.id,
       },
     });
-    res.status(200).json({ deletedFriendRequest });
+    return res.status(200).json({ deletedFriendRequest });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
-
-}
+};
 
 // Route to decline friend request
 export const declineFriendRequest = async (req, res, next) => {
@@ -147,19 +140,17 @@ export const declineFriendRequest = async (req, res, next) => {
       },
     });
     if (!friendRequest) {
-      res.status(400).json({ error: "Friend request does not exist" });
+      return res.status(400).json({ error: "Friend request does not exist" });
     }
     const deletedFriendRequest = await prisma.friendRequests.delete({
       where: {
         id: friendRequest.id,
       },
     });
-    res.status(200).json({ deletedFriendRequest });
-
+    return res.status(200).json({ deletedFriendRequest });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
-
 };
 
 // Route to get friends
@@ -196,10 +187,10 @@ export const getFriendList = async (req, res, next) => {
       take: parseInt(perPage),
     });
     console.log(friends);
-    res.status(200).json({ friends });
+    return res.status(200).json({ friends });
   } catch (error) {
     console.log("error:", error);
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -214,7 +205,7 @@ export const getFriendRequests = async (req, res, next) => {
       sender: true,
     },
   });
-  res.status(200).json({ friendRequests });
+  return res.status(200).json({ friendRequests });
 };
 
 // Route to get sent friend requests
@@ -228,7 +219,7 @@ export const getSentFriendRequests = async (req, res, next) => {
       receiver: true,
     },
   });
-  res.status(200).json({ sentFriendRequests });
+  return res.status(200).json({ sentFriendRequests });
 };
 
 // Route to delete friend
@@ -236,7 +227,6 @@ export const deleteFriend = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
   try {
-
     const friend = await prisma.usersFriends.findFirst({
       where: {
         userId: parseInt(userId),
@@ -245,7 +235,7 @@ export const deleteFriend = async (req, res, next) => {
     });
 
     if (!friend) {
-      res.status(400).json({ error: "Friend does not exist" });
+      return res.status(400).json({ error: "Friend does not exist" });
     }
 
     const deletedFriend = await prisma.usersFriends.deleteMany({
@@ -263,12 +253,9 @@ export const deleteFriend = async (req, res, next) => {
       },
     });
 
-    res.status(200).json({ deletedFriend });
-
+    return res.status(200).json({ deletedFriend });
   } catch (error) {
-
-    res.status(400).json({ error: error.message });
-
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -284,7 +271,7 @@ export const getFriendRequestsSent = async (req, res, next) => {
       receiver: true,
     },
   });
-  res.status(200).json({ friendRequests });
+  return res.status(200).json({ friendRequests });
 };
 
 // Route to get all friend requests received
@@ -298,7 +285,7 @@ export const getFriendRequestsReceived = async (req, res, next) => {
       sender: true,
     },
   });
-  res.status(200).json({ friendRequests });
+  return res.status(200).json({ friendRequests });
 };
 
 // Route to get a friend request
@@ -314,7 +301,7 @@ export const getFriendRequest = async (req, res, next) => {
       receiver: true,
     },
   });
-  res.status(200).json({ friendRequest });
+  return res.status(200).json({ friendRequest });
 };
 
 // // Route to delete a friend request
@@ -334,7 +321,7 @@ export const getFriendRequest = async (req, res, next) => {
 //       id,
 //     },
 //   });
-//   res.status(200).json({ deletedFriendRequest });
+//   return res.status(200).json({ deletedFriendRequest });
 // };
 
 // Route to get all friend requests sent by a user
@@ -350,9 +337,9 @@ export const getFriendRequestSent = async (req, res, next) => {
         receiver: true,
       },
     });
-    res.status(200).json({ friendRequest });
+    return res.status(200).json({ friendRequest });
   } catch (error) {
-    res.status(500).json({ error });
+    return res.status(500).json({ error });
   }
 };
 
@@ -368,7 +355,7 @@ export const getFriendRequestReceived = async (req, res, next) => {
       receiver: true,
     },
   });
-  res.status(200).json({ friendRequest });
+  return res.status(200).json({ friendRequest });
 };
 
 // Route to get all friend requests sent by a user
@@ -383,7 +370,7 @@ export const getFriendRequestReceived = async (req, res, next) => {
 //       receiver: true,
 //     },
 //   });
-//   res.status(200).json({ friendRequest });
+//   return res.status(200).json({ friendRequest });
 
 // };
 
@@ -406,9 +393,9 @@ export const getFriendRequestReceivedByUser = async (req, res, next) => {
       skip: parseInt(offset),
       take: parseInt(perPage),
     });
-    res.status(200).json({ friendRequest });
+    return res.status(200).json({ friendRequest });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 export const getIsFriend = async (req, res, next) => {
@@ -436,13 +423,12 @@ export const getIsFriend = async (req, res, next) => {
 
     if (!isFriend) return res.status(200).json({ isFriend: false });
 
-    res.status(200).json({ isFriend: true });
+    return res.status(200).json({ isFriend: true });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 export const getIsFriendReqSent = async (req, res, next) => {
-
   let { id } = req.params;
   let { id: userId } = req.user;
   id = parseInt(id);
@@ -461,14 +447,14 @@ export const getIsFriendReqSent = async (req, res, next) => {
       },
     });
 
-    if (!isFriendReqSent) return res.status(200).json({ isFriendReqSent: false });
+    if (!isFriendReqSent)
+      return res.status(200).json({ isFriendReqSent: false });
 
-    res.status(200).json({ isFriendReqSent: true });
+    return res.status(200).json({ isFriendReqSent: true });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
-
-}
+};
 
 export const getIsFriendReqReceived = async (req, res, next) => {
   let { id } = req.params;
@@ -489,15 +475,14 @@ export const getIsFriendReqReceived = async (req, res, next) => {
       },
     });
 
-    if (!isFriendReqReceived) return res.status(200).json({ isFriendReqReceived: false });
+    if (!isFriendReqReceived)
+      return res.status(200).json({ isFriendReqReceived: false });
 
-    res.status(200).json({ isFriendReqReceived: true });
+    return res.status(200).json({ isFriendReqReceived: true });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
-
-}
-
+};
 
 // Route to start a conversation
 export const createConversation = async (req, res, next) => {
@@ -541,7 +526,7 @@ export const createConversation = async (req, res, next) => {
     },
   });
 
-  res.status(200).json({ conversation });
+  return res.status(200).json({ conversation });
 };
 
 // Route to get all conversations
@@ -559,7 +544,7 @@ export const getConversationsByUser = async (req, res, next) => {
       users: true,
     },
   });
-  res.status(200).json({ conversations });
+  return res.status(200).json({ conversations });
 };
 
 // Route to get a conversation
@@ -574,7 +559,7 @@ export const getConversation = async (req, res, next) => {
       users: true,
     },
   });
-  res.status(200).json({ conversation });
+  return res.status(200).json({ conversation });
 };
 
 // Route to get all messages
@@ -588,7 +573,7 @@ export const getMessagesByConversation = async (req, res, next) => {
       sender: true,
     },
   });
-  res.status(200).json({ messages });
+  return res.status(200).json({ messages });
 };
 
 // Route to get all messages sent by a user
@@ -602,7 +587,7 @@ export const getMessagesByUser = async (req, res, next) => {
       sender: true,
     },
   });
-  res.status(200).json({ messages });
+  return res.status(200).json({ messages });
 };
 
 // Route to send a message
@@ -616,7 +601,7 @@ export const sendMessage = async (req, res, next) => {
     },
   });
   if (!conversation) {
-    res.status(400).json({ message: "Conversation not found" });
+    return res.status(400).json({ message: "Conversation not found" });
   }
   const newMessage = await prisma.message.create({
     data: {
@@ -628,7 +613,7 @@ export const sendMessage = async (req, res, next) => {
       sender: true,
     },
   });
-  res.status(200).json({ newMessage });
+  return res.status(200).json({ newMessage });
 };
 
 // Route to get all posts
@@ -643,9 +628,9 @@ export const getPostsByUser = async (req, res, next) => {
     },
   });
   if (!posts) {
-    res.status(400).json({ message: "No posts found" });
+    return res.status(400).json({ message: "No posts found" });
   }
-  res.status(200).json({ posts });
+  return res.status(200).json({ posts });
 };
 
 // Route to get a post
@@ -663,9 +648,9 @@ export const getPost = async (req, res, next) => {
   });
 
   if (!post) {
-    res.status(400).json({ message: "Post does not exist" });
+    return res.status(400).json({ message: "Post does not exist" });
   }
-  res.status(200).json({ post });
+  return res.status(200).json({ post });
 };
 
 // Route to create a post
@@ -674,32 +659,51 @@ export const createPost = async (req, res, next) => {
   const { content } = req.body;
 
   const { communityId } = req.query;
-  const post = await prisma.post.create({
-    data: {
-      content,
-      authorId: parseInt(id),
-      communityId: parseInt(communityId),
-      published: true,
-    },
-    include: {
-      author: true,
-      community: true,
-    },
-  });
 
-  if (!post) {
-    res.status(400).json({ message: "Post could not be created" });
-  }
-  res.status(200).json({ post });
+  upload.array("postImage")(req, res, async (err) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ message: err.message });
+    }
+    if (!req.file && !req.files) {
+      return res.status(400).json({ message: "No file was uploaded" });
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        content,
+        authorId: parseInt(id),
+        communityId: parseInt(communityId),
+        published: true,
+        images: {
+          createMany: {
+            data: req.files.map((file) => ({
+              path: file.path,
+              image: file.filename,
+            })),
+          },
+        },
+      },
+      include: {
+        author: true,
+        community: true,
+      },
+    });
+
+    if (!post) {
+      return res.status(400).json({ message: "Post could not be created" });
+    }
+    return res.status(200).json({ post });
+  });
 };
 
 export const uploadImages = async (req, res, next) => {
   upload.array("images", images.length)(req, res, (err) => {
     if (req.files.length === 0) {
-      res.status(400).json({ message: "No files were uploaded" });
+      return res.status(400).json({ message: "No files were uploaded" });
     }
     if (err) {
-      res.status(400).json({ message: err.message });
+      return res.status(400).json({ message: err.message });
     }
 
     return res
@@ -725,7 +729,7 @@ export const updatePost = async (req, res, next) => {
     });
 
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     if (post.author.id !== userId) {
       res
@@ -746,9 +750,9 @@ export const updatePost = async (req, res, next) => {
       },
     });
 
-    res.status(200).json({ posts });
+    return res.status(200).json({ posts });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -763,7 +767,7 @@ export const IsLiked = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     const isLiked = await prisma.postLikes.findFirst({
       where: {
@@ -772,12 +776,12 @@ export const IsLiked = async (req, res, next) => {
       },
     });
     if (isLiked) {
-      res.status(200).json({ isLiked: true });
+      return res.status(200).json({ isLiked: true });
     } else {
-      res.status(200).json({ isLiked: false });
+      return res.status(200).json({ isLiked: false });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -792,7 +796,7 @@ export const IsDisliked = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     const isDisliked = await prisma.postDislike.findFirst({
       where: {
@@ -801,12 +805,12 @@ export const IsDisliked = async (req, res, next) => {
       },
     });
     if (isDisliked) {
-      res.status(200).json({ isDisliked: true });
+      return res.status(200).json({ isDisliked: true });
     } else {
-      res.status(200).json({ isDisliked: false });
+      return res.status(200).json({ isDisliked: false });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -821,7 +825,7 @@ export const DisLikePost = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     const postDislike = await prisma.postDislike.findFirst({
       where: {
@@ -830,7 +834,9 @@ export const DisLikePost = async (req, res, next) => {
       },
     });
     if (postDislike) {
-      res.status(400).json({ message: "You have already disliked this post" });
+      return res
+        .status(400)
+        .json({ message: "You have already disliked this post" });
     }
 
     const like = await prisma.postLikes.findFirst({
@@ -856,9 +862,9 @@ export const DisLikePost = async (req, res, next) => {
         user: true,
       },
     });
-    res.status(200).json({ newDisLike });
+    return res.status(200).json({ newDisLike });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 export const LikePost = async (req, res, next) => {
@@ -873,7 +879,7 @@ export const LikePost = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     const like = await prisma.postLikes.findFirst({
       where: {
@@ -882,7 +888,9 @@ export const LikePost = async (req, res, next) => {
       },
     });
     if (like) {
-      res.status(400).json({ message: "You have already liked this post" });
+      return res
+        .status(400)
+        .json({ message: "You have already liked this post" });
     }
 
     const disklike = await prisma.postDislike.findFirst({
@@ -908,9 +916,9 @@ export const LikePost = async (req, res, next) => {
         user: true,
       },
     });
-    res.status(200).json({ newLike });
+    return res.status(200).json({ newLike });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -924,7 +932,7 @@ export const LikeRemove = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     const like = await prisma.postLikes.findFirst({
       where: {
@@ -933,7 +941,7 @@ export const LikeRemove = async (req, res, next) => {
       },
     });
     if (!like) {
-      res.status(400).json({ message: "You have not liked this post" });
+      return res.status(400).json({ message: "You have not liked this post" });
     }
 
     const newLike = await prisma.postLikes.delete({
@@ -941,9 +949,9 @@ export const LikeRemove = async (req, res, next) => {
         id: parseInt(like.id),
       },
     });
-    res.status(200).json({ newLike });
+    return res.status(200).json({ newLike });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -957,7 +965,7 @@ export const DisLikeRemove = async (req, res, next) => {
       },
     });
     if (!post) {
-      res.status(400).json({ message: "Post does not exist" });
+      return res.status(400).json({ message: "Post does not exist" });
     }
     const dislike = await prisma.postDislike.findFirst({
       where: {
@@ -966,7 +974,9 @@ export const DisLikeRemove = async (req, res, next) => {
       },
     });
     if (!dislike) {
-      res.status(400).json({ message: "You have not disliked this post" });
+      return res
+        .status(400)
+        .json({ message: "You have not disliked this post" });
     }
 
     const newDislike = await prisma.postDislike.delete({
@@ -974,9 +984,9 @@ export const DisLikeRemove = async (req, res, next) => {
         id: parseInt(dislike.id),
       },
     });
-    res.status(200).json({ newDislike });
+    return res.status(200).json({ newDislike });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -999,9 +1009,9 @@ export const deletePost = async (req, res, next) => {
         author: true,
       },
     });
-    res.status(200).json({ posts });
+    return res.status(200).json({ posts });
   } catch (error) {
-    res.status(400).json({ message: "Post does not exist" });
+    return res.status(400).json({ message: "Post does not exist" });
   }
 };
 
@@ -1032,11 +1042,11 @@ export const getCommentsByPost = async (req, res, next) => {
     });
 
     if (!comments) {
-      res.status(400).json({ message: "No comments found" });
+      return res.status(400).json({ message: "No comments found" });
     }
-    res.status(200).json({ comments });
+    return res.status(200).json({ comments });
   } catch (error) {
-    res.status(400).json({ error });
+    return res.status(400).json({ error });
   }
 };
 
@@ -1056,10 +1066,10 @@ export const getCommunityPostsByUser = async (req, res, next) => {
   });
 
   if (!posts) {
-    res.status(400).json({ message: "No posts found" });
+    return res.status(400).json({ message: "No posts found" });
   }
 
-  res.status(200).json({ posts });
+  return res.status(200).json({ posts });
 };
 
 // Route to get all members of a community

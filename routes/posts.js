@@ -33,7 +33,7 @@ router.get("/isLiked/:id", IsLiked);
 router.get("/isDisliked/:id", IsDisliked);
 
 // ---------------------  POST ---------------------
-router.post("/createPost", uploadImages, createPost);
+router.post("/createPost", createPost);
 router.post("/createComment/:postId", createComment);
 router.post("/replyComment/", replyComment);
 router.post("/like/:id", LikePost);

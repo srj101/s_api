@@ -1,3 +1,3 @@
 export const hello = async (req, res, next) => {
-    res.send("Hello World!");
-}
+  return res.send("Hello World!");
+};

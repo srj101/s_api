@@ -9,7 +9,7 @@ export const register = async (req, res, next) => {
   const { email, password, firstName, lastName, dob } = req.body;
   const hashedPassword = await bcrypt.hash(password, 12);
   if (!email || !password || !firstName || !lastName || !dob) {
-    res.status(400).json({ message: "Please enter all fields" });
+    return res.status(400).json({ message: "Please enter all fields" });
   }
   try {
     const user = await prisma.user.create({
@@ -22,11 +22,11 @@ export const register = async (req, res, next) => {
       },
     });
     const token = jwt.sign({ user }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
+      expiresIn: "1d",
     });
-    res.status(200).json({ token });
+    return res.status(200).json({ token });
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -34,7 +34,7 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(400).json({ message: "Please enter all fields" });
+    return res.status(400).json({ message: "Please enter all fields" });
   }
   const user = await prisma.user.findUnique({
     where: {
@@ -42,14 +42,14 @@ export const login = async (req, res, next) => {
     },
   });
   if (!user) {
-    res.status(400).json({ message: "Invalid credentials" });
+    return res.status(400).json({ message: "Invalid credentials" });
   }
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    res.status(400).json({ message: "Invalid credentials" });
+    return res.status(400).json({ message: "Invalid credentials" });
   }
   const token = jwt.sign({ user }, process.env.JWT_SECRET, {
-    expiresIn: '1d',
+    expiresIn: "1d",
   });
-  res.status(200).json({ token });
+  return res.status(200).json({ token });
 };
