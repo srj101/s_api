@@ -653,6 +653,8 @@ export const getPost = async (req, res, next) => {
   return res.status(200).json({ post });
 };
 
+
+
 // Route to create a post
 export const createPost = async (req, res, next) => {
   const { id } = req.user;
@@ -661,7 +663,8 @@ export const createPost = async (req, res, next) => {
 
 
   upload.array("postImage")(req, res, async (err) => {
-
+    console.log(id, content, communityId)
+    console.log(req.body)
     if (err) {
       console.log(err);
       return res.status(400).json({ message: err.message });
@@ -680,7 +683,7 @@ export const createPost = async (req, res, next) => {
           images: {
             createMany: {
               data: req.files.map((file) => ({
-                path: file.path,
+                path: file.path.split("public\\")[1],
                 image: file.filename,
               })),
             },
@@ -698,7 +701,7 @@ export const createPost = async (req, res, next) => {
       return res.status(200).json({ post });
     }
     catch (error) {
-      return res.status(400).json({ message: err.message });
+      return res.status(400).json({ message: error.message });
     }
 
   });
