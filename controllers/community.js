@@ -19,12 +19,19 @@ export const createCommunity = async (req, res, next) => {
         ownerId: parseInt(id),
       },
       select: {
+        id: true,
         name: true,
         description: true,
         sportId: true,
         ownerId: true,
       },
     });
+
+    const member = await prisma.communityMembers.create({
+      communityId: parseInt(community.id),
+      userId: parseInt(id),
+    })
+
     return res.status(200).json({ community });
   } catch (error) {
     return res.status(400).json({ message: "Something Went Wrong" });
@@ -34,29 +41,26 @@ export const createCommunity = async (req, res, next) => {
 // Route to get all members of a community
 export const getMembersByCommunity = async (req, res, next) => {
   const { page, limit } = req.query;
-  const { id } = req.params;
+  const { id } = req.params
+  console.log(page, limit)
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
   try {
-    const members = await prisma.community.findFirst({
+    const members = await prisma.communityMembers.findMany({
       where: {
-        id: parseInt(id),
+        communityId: parseInt(id),
       },
       select: {
-        members: {
+        user: {
           select: {
-            user: {
+            id: true,
+            profilePicture: true,
+            firstName: true,
+            lastName: true,
+            sports: {
               select: {
-                id: true,
-                profilePicture: true,
-                firstName: true,
-                lastName: true,
-                sports: {
-                  select: {
-                    sport: true,
-                  },
-                },
+                sport: true,
               },
             },
           },

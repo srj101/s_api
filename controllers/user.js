@@ -657,10 +657,11 @@ export const getPost = async (req, res, next) => {
 export const createPost = async (req, res, next) => {
   const { id } = req.user;
   const { content } = req.body;
-
   const { communityId } = req.query;
 
+
   upload.array("postImage")(req, res, async (err) => {
+
     if (err) {
       console.log(err);
       return res.status(400).json({ message: err.message });
@@ -669,31 +670,37 @@ export const createPost = async (req, res, next) => {
       return res.status(400).json({ message: "No file was uploaded" });
     }
 
-    const post = await prisma.post.create({
-      data: {
-        content,
-        authorId: parseInt(id),
-        communityId: parseInt(communityId),
-        published: true,
-        images: {
-          createMany: {
-            data: req.files.map((file) => ({
-              path: file.path,
-              image: file.filename,
-            })),
+    try {
+      const post = await prisma.post.create({
+        data: {
+          content,
+          authorId: parseInt(id),
+          communityId: parseInt(communityId),
+          published: true,
+          images: {
+            createMany: {
+              data: req.files.map((file) => ({
+                path: file.path,
+                image: file.filename,
+              })),
+            },
           },
         },
-      },
-      include: {
-        author: true,
-        community: true,
-      },
-    });
+        include: {
+          author: true,
+          community: true,
+        },
+      });
 
-    if (!post) {
-      return res.status(400).json({ message: "Post could not be created" });
+      if (!post) {
+        return res.status(400).json({ message: "Post could not be created" });
+      }
+      return res.status(200).json({ post });
     }
-    return res.status(200).json({ post });
+    catch (error) {
+      return res.status(400).json({ message: err.message });
+    }
+
   });
 };
 

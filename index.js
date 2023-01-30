@@ -10,7 +10,7 @@ import communityRoute from "./routes/community.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { verifyToken } from "./utils/verifyToken.js";
-
+import bodyParser from "body-parser";
 const app = express();
 
 dotenv.config();
@@ -19,13 +19,15 @@ dotenv.config();
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('uploads'))
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname + "-" + Date.now());
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 export const upload = multer({ storage: storage });
