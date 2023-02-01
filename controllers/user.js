@@ -1,3 +1,4 @@
+import { fs } from "file-system";
 import jwt from "jsonwebtoken";
 import { upload } from "../index.js";
 import prisma from "../prisma/prisma.js";
@@ -653,18 +654,23 @@ export const getPost = async (req, res, next) => {
   return res.status(200).json({ post });
 };
 
-
-
 // Route to create a post
-export const createPost = async (req, res, next) => {
+export const createPost = async function (req, res, next) {
   const { id } = req.user;
-  const { content } = req.body;
+  // const { content, title } = req.fields;
   const { communityId } = req.query;
 
+  console.log(req.body);
+  const { content, title } = req.body;
 
-  upload.array("postImage")(req, res, async (err) => {
-    console.log(id, content, communityId)
-    console.log(req.body)
+  const images = Object.entries(req.files).map((file) => ({
+    path: `/uploads/${file[1].filename}`,
+    image: file[1].filename,
+  }));
+
+  console.log(images);
+
+  upload(req, res, async (err) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ message: err.message });
@@ -676,22 +682,21 @@ export const createPost = async (req, res, next) => {
     try {
       const post = await prisma.post.create({
         data: {
+          title,
           content,
           authorId: parseInt(id),
           communityId: parseInt(communityId),
           published: true,
           images: {
             createMany: {
-              data: req.files.map((file) => ({
-                path: file.path.split("public\\")[1],
-                image: file.filename,
-              })),
+              data: images,
             },
           },
         },
         include: {
           author: true,
           community: true,
+          images: true,
         },
       });
 
@@ -699,11 +704,9 @@ export const createPost = async (req, res, next) => {
         return res.status(400).json({ message: "Post could not be created" });
       }
       return res.status(200).json({ post });
-    }
-    catch (error) {
+    } catch (error) {
       return res.status(400).json({ message: error.message });
     }
-
   });
 };
 

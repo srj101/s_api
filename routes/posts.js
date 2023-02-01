@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import multer from "multer";
 import {
   createComment,
   deleteComment,
@@ -22,7 +24,38 @@ import {
 } from "../controllers/user.js";
 
 const router = express.Router();
+export const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
 
+const __dirname = path.resolve();
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10000000 },
+  fileFilter(req, file, callback) {
+    const extension =
+      [".png", ".jpg", ".jpeg"].indexOf(
+        path.extname(file.originalname).toLowerCase()
+      ) >= 0;
+    const mimeType =
+      ["image/png", "image/jpg", "image/jpeg"].indexOf(file.mimetype) >= 0;
+
+    if (extension && mimeType) {
+      return callback(null, true);
+    }
+
+    callback(
+      new Error(
+        "Invalid file type. Only picture file on type PNG and JPG are allowed!"
+      )
+    );
+  },
+});
 // ---------------------  GET ---------------------
 
 router.get("/postsByUser", getPostsByUser);
@@ -33,7 +66,7 @@ router.get("/isLiked/:id", IsLiked);
 router.get("/isDisliked/:id", IsDisliked);
 
 // ---------------------  POST ---------------------
-router.post("/createPost", createPost);
+router.post("/createPost", upload.array("image"), createPost);
 router.post("/createComment/:postId", createComment);
 router.post("/replyComment/", replyComment);
 router.post("/like/:id", LikePost);
