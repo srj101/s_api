@@ -121,23 +121,107 @@ export const deleteSport = async (req, res, next) => {
 
 export const sportsUser = async (req, res, next) => {
   const { id } = req.params;
-  const { page, limit } = req.query;
+  const { page, limit, gender = '', location = '', ageGt = 0, ageLt = 200 } = req.query;
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
   try {
-    const sports = await prisma.sportUsers.findMany({
-      where: {
-        sportId: parseInt(id),
-      },
-      include: {
-        user: true,
-      },
-      skip: parseInt(offset),
-      take: parseInt(perPage),
-    });
 
-    return res.status(200).json({ sports });
+
+    if (gender !== '' && location === '') {
+      const sports = await prisma.sportUsers.findMany({
+        where: {
+          sportId: parseInt(id),
+          user: {
+            gender: {
+              equals: gender
+            },
+            age: {
+              gte: parseInt(ageGt),
+              lte: parseInt(ageLt),
+            }
+          }
+        },
+        include: {
+          user: true,
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      });
+      return res.status(200).json({ sports });
+    }
+    else if (gender === '' && location !== '') {
+      const sports = await prisma.sportUsers.findMany({
+        where: {
+          sportId: parseInt(id),
+          user: {
+            location: {
+              contains: location,
+              mode: "insensitive",
+            },
+            age: {
+              gte: parseInt(ageGt),
+              lte: parseInt(ageLt),
+            }
+          }
+
+        },
+        include: {
+          user: true,
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      });
+      return res.status(200).json({ sports });
+    }
+
+    else if (gender !== '' && location !== '') {
+      const sports = await prisma.sportUsers.findMany({
+        where: {
+          sportId: parseInt(id),
+          user: {
+            gender: {
+              equals: gender
+            },
+            location: {
+              contains: location,
+              mode: "insensitive",
+            },
+            age: {
+              gte: parseInt(ageGt),
+              lte: parseInt(ageLt),
+            }
+          }
+        },
+        include: {
+          user: true,
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      });
+      return res.status(200).json({ sports });
+    }
+    else if (gender === '' && location === '') {
+      const sports = await prisma.sportUsers.findMany({
+        where: {
+          sportId: parseInt(id),
+          user: {
+            age: {
+              gte: parseInt(ageGt),
+              lte: parseInt(ageLt),
+            }
+          }
+        },
+        include: {
+          user: true,
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      });
+      return res.status(200).json({ sports });
+    }
+
+
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

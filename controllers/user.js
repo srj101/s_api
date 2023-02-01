@@ -659,9 +659,11 @@ export const createPost = async function (req, res, next) {
   const { id } = req.user;
   // const { content, title } = req.fields;
   const { communityId } = req.query;
-
-  console.log(req.body);
   const { content, title } = req.body;
+
+  if (!content && !req.files) {
+    return res.status(400).json({ message: "No file was uploaded" });
+  }
 
   const images = Object.entries(req.files).map((file) => ({
     path: `/uploads/${file[1].filename}`,
@@ -1009,9 +1011,7 @@ export const deletePost = async (req, res, next) => {
   const { id: userId } = req.user;
   const { authorId } = req.body;
   if (authorId !== userId) {
-    res
-      .status(400)
-      .json({ message: "You are not authorized to delete this post" });
+    return res.status(400).json({ message: "You are not authorized to delete this post" });
   }
   try {
     const posts = await prisma.post.delete({

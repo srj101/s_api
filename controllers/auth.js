@@ -11,6 +11,9 @@ export const register = async (req, res, next) => {
   if (!email || !password || !firstName || !lastName || !dob) {
     return res.status(400).json({ message: "Please enter all fields" });
   }
+
+  const age = new Date().getFullYear() - new Date(dob).getFullYear();
+
   try {
     const user = await prisma.user.create({
       data: {
@@ -19,6 +22,7 @@ export const register = async (req, res, next) => {
         firstName,
         lastName,
         dob: new Date(dob),
+        age: age
       },
     });
     const token = jwt.sign({ user }, process.env.JWT_SECRET, {

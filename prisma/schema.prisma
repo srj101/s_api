@@ -17,6 +17,7 @@ model User {
   lastName               String
   password               String
   dob                    DateTime?          @default(now())
+  age                    Int?             
   gender                 String?
   profilePicture         String?
   coverPicture           String?
@@ -157,3 +158,5 @@ model Comment {
   parent   Comment?  @relation("parent", fields: [parentId], references: [id])
   parentId Int?
 }
+
+
