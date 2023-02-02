@@ -1031,24 +1031,47 @@ export const deletePost = async (req, res, next) => {
 // Route to get all comments
 export const getCommentsByPost = async (req, res, next) => {
   const { postId } = req.params;
-
   const { page, limit } = req.query;
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
-
   try {
     const comments = await prisma.comment.findMany({
       where: {
         postId: parseInt(postId),
+        parentId: null
       },
-      include: {
-        Children: {
-          include: {
-            Children: true,
-          },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        author: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          }
         },
+        replies: {
+          select: {
+            id: true,
+            content: true,
+            author: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profilePicture: true,
+              }
+            },
+            createdAt: true,
+          }
+        }
+
       },
+
+
 
       skip: parseInt(offset),
       take: parseInt(perPage),
@@ -1059,7 +1082,7 @@ export const getCommentsByPost = async (req, res, next) => {
     }
     return res.status(200).json({ comments });
   } catch (error) {
-    return res.status(400).json({ error });
+    return res.status(400).json({ error: error.message });
   }
 };
 

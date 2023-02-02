@@ -157,6 +157,7 @@ model Comment {
   replies  Comment[] @relation("parent")
   parent   Comment?  @relation("parent", fields: [parentId], references: [id])
   parentId Int?
+  createdAt DateTime @default(now())
 }
 
 
