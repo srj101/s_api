@@ -121,11 +121,56 @@ export const deleteSport = async (req, res, next) => {
 
 export const sportsUser = async (req, res, next) => {
   const { id } = req.params;
-  const { page, limit, gender = '', location = '', ageGt = 0, ageLt = 200 } = req.query;
+
+  let { page, limit, gender, location, ageGt, ageLt, sportUserSearch } = req.query;
+  if (ageGt === '' || ageLt === '' || ageGt < 0 || ageLt < 0) {
+    ageGt = parseInt(0);
+    ageLt = parseInt(200);
+  }
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
   try {
+    if (sportUserSearch) {
+      const sports = await prisma.sportUsers.findMany({
+        where: {
+          sportId: parseInt(id),
+          user: {
+            OR: [
+              {
+                firstName: {
+                  contains: sportUserSearch,
+                  mode: "insensitive",
+                },
+              },
+              {
+                lastName: {
+                  contains: sportUserSearch,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              age: true,
+
+            }
+          },
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      }
+      )
+      return res.status(200).json({ sports });
+    }
+
 
 
     if (gender !== '' && location === '') {
@@ -143,7 +188,16 @@ export const sportsUser = async (req, res, next) => {
           }
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              age: true,
+
+            }
+          },
         },
         skip: parseInt(offset),
         take: parseInt(perPage),
@@ -167,7 +221,16 @@ export const sportsUser = async (req, res, next) => {
 
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              age: true,
+
+            }
+          },
         },
         skip: parseInt(offset),
         take: parseInt(perPage),
@@ -194,7 +257,16 @@ export const sportsUser = async (req, res, next) => {
           }
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              age: true,
+
+            }
+          },
         },
         skip: parseInt(offset),
         take: parseInt(perPage),
@@ -213,11 +285,21 @@ export const sportsUser = async (req, res, next) => {
           }
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              age: true,
+
+            }
+          },
         },
         skip: parseInt(offset),
         take: parseInt(perPage),
       });
+      console.log(offset, perPage)
       return res.status(200).json({ sports });
     }
 

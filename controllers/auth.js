@@ -22,7 +22,8 @@ export const register = async (req, res, next) => {
         firstName,
         lastName,
         dob: new Date(dob),
-        age: age
+        age: age,
+        fullName: `${firstName} ${lastName}`,
       },
     });
     const token = jwt.sign({ user }, process.env.JWT_SECRET, {

@@ -156,13 +156,66 @@ export const declineFriendRequest = async (req, res, next) => {
 
 // Route to get friends
 export const getFriendList = async (req, res, next) => {
-  const { page, limit, userId } = req.query;
+  const { page, limit, userId, friendsSearch } = req.query;
   console.log(userId);
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
 
   try {
+
+    if (friendsSearch) {
+      const friends = await prisma.usersFriends.findMany({
+        where: {
+          userId: parseInt(userId),
+          friend: {
+            OR: [
+              {
+                firstName: {
+                  contains: friendsSearch,
+                  mode: "insensitive",
+                },
+              },
+              {
+                lastName: {
+                  contains: friendsSearch,
+                  mode: "insensitive",
+                },
+              },
+              {
+                fullName: {
+                  contains: friendsSearch,
+                  mode: "insensitive",
+                },
+              }
+            ]
+
+          },
+        },
+        select: {
+          friend: {
+            select: {
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              id: true,
+              sports: {
+                select: {
+                  sport: true,
+                },
+              },
+              dob: true,
+
+            },
+          },
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      });
+      console.log(friends);
+      return res.status(200).json({ friends });
+    }
+
     const friends = await prisma.usersFriends.findMany({
       where: {
         userId: parseInt(userId),
@@ -180,7 +233,7 @@ export const getFriendList = async (req, res, next) => {
               },
             },
             dob: true,
-            id: true,
+
           },
         },
       },

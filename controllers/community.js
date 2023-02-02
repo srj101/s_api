@@ -58,6 +58,7 @@ export const getMembersByCommunity = async (req, res, next) => {
             profilePicture: true,
             firstName: true,
             lastName: true,
+            fullName: true,
             sports: {
               select: {
                 sport: true,
@@ -122,13 +123,57 @@ export const getCommunitiesByUser = async (req, res, next) => {
 };
 
 export const getCommunities = async (req, res, next) => {
-  const { page, limit } = req.query;
+  const { page, limit, suggestCommunitySearch } = req.query;
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
   const { id } = req.user;
 
   try {
+
+    if (suggestCommunitySearch) {
+      const communitiesList = await prisma.community.findMany({
+        where: {
+          name: {
+            contains: suggestCommunitySearch,
+            mode: "insensitive",
+          },
+          ownerId: {
+            not: parseInt(id),
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          image: true,
+          ownerId: true,
+          sportId: true,
+          members: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+        skip: parseInt(offset),
+        take: parseInt(perPage),
+      });
+
+      const communities = communitiesList.map((community) => {
+        const isMember = community.members.some(
+          (member) => member.userId === parseInt(id)
+        );
+        return {
+          ...community,
+          isMember: isMember,
+        };
+      });
+      console.log(communities);
+      return res.status(200).json({ communities });
+
+
+    }
+
     const communitiesList = await prisma.community.findMany({
       where: {
         ownerId: {
