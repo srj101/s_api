@@ -104,7 +104,7 @@ export const acceptFriendRequest = async (req, res, next) => {
   }
 };
 
-export const cancleFriendRequest = async (req, res, next) => {
+export const cancelFriendRequest = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
   try {
@@ -396,6 +396,23 @@ export const getFriendRequestSent = async (req, res, next) => {
     return res.status(500).json({ error });
   }
 };
+export const hasFriendRequest = async (req, res, next) => {
+  const { id } = req.user;
+  try {
+    const hasFriendRequest = await prisma.friendRequests.findFirst({
+      where: {
+        receiverId: parseInt(id),
+      },
+
+
+    });
+    return res.status(200).json({ hasFriendRequest: hasFriendRequest === null ? false : true });
+
+  }
+  catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 
 // Route to get all friend requests received by a user
 export const getFriendRequestReceived = async (req, res, next) => {
@@ -643,6 +660,18 @@ export const getMessagesByUser = async (req, res, next) => {
   });
   return res.status(200).json({ messages });
 };
+export const updateUser = async (req, res, next) => {
+  const { firstName, lastName, location } = req.body;
+
+  if (firstName === '' || lastName === '')
+    return res.status(400).json({ message: "Please fill all the fields" })
+
+
+
+
+
+
+}
 
 // Route to send a message
 export const sendMessage = async (req, res, next) => {

@@ -149,6 +149,12 @@ export const sportsUser = async (req, res, next) => {
                   mode: "insensitive",
                 },
               },
+              {
+                fullName: {
+                  contains: sportUserSearch,
+                  mode: "insensitive",
+                }
+              }
             ],
           },
         },

@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider   = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -15,10 +15,10 @@ model User {
   email                  String             @unique
   firstName              String
   lastName               String
-  fullName               String          
+  fullName               String
   password               String
   dob                    DateTime?          @default(now())
-  age                    Int?             
+  age                    Int?
   gender                 String?
   profilePicture         String?
   coverPicture           String?
@@ -118,15 +118,15 @@ model Post {
   community   Community     @relation(fields: [communityId], references: [id], name: "communityPost", onDelete: Cascade)
   communityId Int
   comments    Comment[]
-  images      PostImages[] @relation("images")
+  images      PostImages[]  @relation("images")
   likes       PostLikes[]   @relation("likes")
   dislikes    PostDislike[] @relation("dislikes")
   createdAt   DateTime      @default(now())
 }
 
 model PostImages {
-  id     Int  @id @default(autoincrement())
-  post   Post @relation(fields: [postId], references: [id], name: "images", onDelete: Cascade)
+  id     Int    @id @default(autoincrement())
+  post   Post   @relation(fields: [postId], references: [id], name: "images", onDelete: Cascade)
   postId Int
   image  String
   path   String
@@ -149,16 +149,14 @@ model PostDislike {
 }
 
 model Comment {
-  id       Int       @id @default(autoincrement())
-  content  String
-  author   User      @relation(fields: [authorId], references: [id])
-  authorId Int
-  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId   Int
-  replies  Comment[] @relation("parent")
-  parent   Comment?  @relation("parent", fields: [parentId], references: [id])
-  parentId Int?
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  content   String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  replies   Comment[] @relation("parent")
+  parent    Comment?  @relation("parent", fields: [parentId], references: [id])
+  parentId  Int?
+  createdAt DateTime  @default(now())
 }
-
-
