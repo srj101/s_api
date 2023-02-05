@@ -4,11 +4,17 @@ import jwt from "jsonwebtoken";
 import prisma from "../prisma/prisma.js";
 
 export const createCommunity = async (req, res, next) => {
-  const { name, description, sportId } = req.body;
+  let { name, description, sportId, members = [] } = req.body;
   const { id } = req.user;
   console.log(req.body);
+  members = members.split(",").map((memeber) => parseInt(memeber));
+  members.push(id);
   if (!name || !description || !sportId) {
     return res.status(400).json({ message: "Please fill all the fields" });
+  }
+
+  if (members.length < 3) {
+    return res.status(400).json({ message: "Please add atleast 3 members" });
   }
   try {
     const community = await prisma.community.create({
@@ -17,6 +23,7 @@ export const createCommunity = async (req, res, next) => {
         description: description,
         sportId: parseInt(sportId),
         ownerId: parseInt(id),
+        image: req.file.path.split("public/")[1],
       },
       select: {
         id: true,
@@ -24,25 +31,28 @@ export const createCommunity = async (req, res, next) => {
         description: true,
         sportId: true,
         ownerId: true,
+        image: true,
       },
     });
 
-    const member = await prisma.communityMembers.create({
-      communityId: parseInt(community.id),
-      userId: parseInt(id),
-    })
+    const m = await prisma.communityMembers.createMany({
+      data: members.map((memeber) => ({
+        userId: parseInt(memeber),
+        communityId: community.id,
+      })),
+    });
 
-    return res.status(200).json({ community });
+    return res.status(200).json({ community, members: m });
   } catch (error) {
-    return res.status(400).json({ message: "Something Went Wrong" });
+    return res.status(400).json({ message: error.message });
   }
 };
 
 // Route to get all members of a community
 export const getMembersByCommunity = async (req, res, next) => {
   const { page, limit } = req.query;
-  const { id } = req.params
-  console.log(page, limit)
+  const { id } = req.params;
+  console.log(page, limit);
   const currentPage = page || 1;
   const perPage = limit || 10;
   const offset = (currentPage - 1) * perPage;
@@ -130,7 +140,6 @@ export const getCommunities = async (req, res, next) => {
   const { id } = req.user;
 
   try {
-
     if (suggestCommunitySearch) {
       const communitiesList = await prisma.community.findMany({
         where: {
@@ -170,8 +179,6 @@ export const getCommunities = async (req, res, next) => {
       });
       console.log(communities);
       return res.status(200).json({ communities });
-
-
     }
 
     const communitiesList = await prisma.community.findMany({

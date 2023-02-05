@@ -7,9 +7,16 @@ import prisma from "../prisma/prisma.js";
 
 export const register = async (req, res, next) => {
   const { email, password, firstName, lastName, dob } = req.body;
+
   const hashedPassword = await bcrypt.hash(password, 12);
   if (!email || !password || !firstName || !lastName || !dob) {
     return res.status(400).json({ message: "Please enter all fields" });
+  }
+
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters long" });
   }
 
   const age = new Date().getFullYear() - new Date(dob).getFullYear();
