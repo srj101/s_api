@@ -14,6 +14,10 @@ export const register = async (req, res, next) => {
 
   const age = new Date().getFullYear() - new Date(dob).getFullYear();
 
+  if (age < 18) {
+    return res.status(400).json({ message: "You must be 18 or older" });
+  }
+
   try {
     const user = await prisma.user.create({
       data: {

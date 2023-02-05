@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { upload } from "../index.js";
 import prisma from "../prisma/prisma.js";
 import { createError } from "../utils/error.js";
+import bcrypt from "bcryptjs";
 
 // @route GET api/auth/user/me
 export const getUser = async (req, res, next) => {
@@ -163,7 +164,6 @@ export const getFriendList = async (req, res, next) => {
   const offset = (currentPage - 1) * perPage;
 
   try {
-
     if (friendsSearch) {
       const friends = await prisma.usersFriends.findMany({
         where: {
@@ -187,9 +187,8 @@ export const getFriendList = async (req, res, next) => {
                   contains: friendsSearch,
                   mode: "insensitive",
                 },
-              }
-            ]
-
+              },
+            ],
           },
         },
         select: {
@@ -205,7 +204,6 @@ export const getFriendList = async (req, res, next) => {
                 },
               },
               dob: true,
-
             },
           },
         },
@@ -233,7 +231,6 @@ export const getFriendList = async (req, res, next) => {
               },
             },
             dob: true,
-
           },
         },
       },
@@ -403,13 +400,11 @@ export const hasFriendRequest = async (req, res, next) => {
       where: {
         receiverId: parseInt(id),
       },
-
-
     });
-    return res.status(200).json({ hasFriendRequest: hasFriendRequest === null ? false : true });
-
-  }
-  catch (error) {
+    return res
+      .status(200)
+      .json({ hasFriendRequest: hasFriendRequest === null ? false : true });
+  } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
@@ -661,17 +656,54 @@ export const getMessagesByUser = async (req, res, next) => {
   return res.status(200).json({ messages });
 };
 export const updateUser = async (req, res, next) => {
-  const { firstName, lastName, location } = req.body;
+  const { firstName, lastName, location, password } = req.body;
 
-  if (firstName === '' || lastName === '')
-    return res.status(400).json({ message: "Please fill all the fields" })
+  if (firstName === "" || lastName === "")
+    return res.status(400).json({ message: "Please fill all the fields" });
 
+  const { id } = req.user;
 
+  const hashedPassword = await bcrypt.hash(password, 10);
 
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        ...req.body,
+        password: hashedPassword,
+        profilePicture: req.file.path.split("public/")[1],
+      },
+    });
 
+    return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
 
+// update user cover photo
+export const updateUserCover = async (req, res, next) => {
+  const { id } = req.user;
 
-}
+  console.log(req.file);
+
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        coverPicture: req.file.path.split("public/")[1],
+      },
+    });
+
+    return res.status(200).json({ user });
+  } catch (err) {
+    return res.status(400).json({ error: error.message });
+  }
+};
 
 // Route to send a message
 export const sendMessage = async (req, res, next) => {
@@ -1093,7 +1125,9 @@ export const deletePost = async (req, res, next) => {
   const { id: userId } = req.user;
   const { authorId } = req.body;
   if (authorId !== userId) {
-    return res.status(400).json({ message: "You are not authorized to delete this post" });
+    return res
+      .status(400)
+      .json({ message: "You are not authorized to delete this post" });
   }
   try {
     const posts = await prisma.post.delete({
@@ -1121,7 +1155,7 @@ export const getCommentsByPost = async (req, res, next) => {
     const comments = await prisma.comment.findMany({
       where: {
         postId: parseInt(postId),
-        parentId: null
+        parentId: null,
       },
       select: {
         id: true,
@@ -1133,7 +1167,7 @@ export const getCommentsByPost = async (req, res, next) => {
             firstName: true,
             lastName: true,
             profilePicture: true,
-          }
+          },
         },
         replies: {
           select: {
@@ -1145,15 +1179,12 @@ export const getCommentsByPost = async (req, res, next) => {
                 firstName: true,
                 lastName: true,
                 profilePicture: true,
-              }
+              },
             },
             createdAt: true,
-          }
-        }
-
+          },
+        },
       },
-
-
 
       skip: parseInt(offset),
       take: parseInt(perPage),

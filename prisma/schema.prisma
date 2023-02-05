@@ -17,7 +17,7 @@ model User {
   lastName               String
   fullName               String
   password               String
-  dob                    DateTime?          @default(now())
+  dob                    DateTime?          
   age                    Int?
   gender                 String?
   profilePicture         String?

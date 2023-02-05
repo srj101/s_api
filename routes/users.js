@@ -14,13 +14,9 @@ import {
   getFriendList,
   getFriendRequestReceivedByUser,
   getFriendRequestSent,
-
   getIsFriend,
-
   getIsFriendReqReceived,
-
   getIsFriendReqSent,
-
   getMessagesByConversation,
   getUser,
   getUserById,
@@ -28,6 +24,7 @@ import {
   sendFriendRequest,
   sendMessage,
   updateUser,
+  updateUserCover,
 } from "../controllers/user.js";
 
 const router = express.Router();
@@ -69,25 +66,17 @@ router.get("/finduser/:id", getUserById);
 router.get("/friendslist", getFriendList);
 // Friend Requests
 
-
-router.get(
-  "/friendrequestsRecieved",
-  getFriendRequestReceivedByUser
-);
+router.get("/friendrequestsRecieved", getFriendRequestReceivedByUser);
 
 router.get("/friendrequestsSent", getFriendRequestSent);
-router.get('/hasFriendRequest', hasFriendRequest)
+router.get("/hasFriendRequest", hasFriendRequest);
 // Conversation
 router.get("/conversations", getConversationsByUser);
 router.get("/conversations/:id", getConversation);
-router.get(
-  "/messagesByConversation/:id",
-  getMessagesByConversation
-);
-router.get("/isFriend/:id", getIsFriend)
-router.get("/isFriendReqReceived/:id", getIsFriendReqReceived)
-router.get("/isFriendReqSent/:id", getIsFriendReqSent)
-
+router.get("/messagesByConversation/:id", getMessagesByConversation);
+router.get("/isFriend/:id", getIsFriend);
+router.get("/isFriendReqReceived/:id", getIsFriendReqReceived);
+router.get("/isFriendReqSent/:id", getIsFriendReqSent);
 
 // ---------------------  POST ---------------------
 
@@ -99,14 +88,14 @@ router.post("/acceptFriendRequest/:id", acceptFriendRequest);
 router.post("/createConversation", createConversation);
 router.post("/sendMessage/:id", sendMessage);
 
-
 // ---------------------  UPDATE ---------------------
-router.put("/updateUser", upload.single("profilePicture"), updateUser)
+router.put("/updateUser", upload.single("profilePicture"), updateUser);
+router.put("/updateUserCover", upload.single("coverPicture"), updateUserCover);
 // ---------------------  DELETE ---------------------
 // Friend Requests
 router.delete("/declineFriendRequest/:id", declineFriendRequest);
 router.delete("/deleteFriend/:id", deleteFriend);
-router.delete("/cancelFriendRequest/:id", cancelFriendRequest)
+router.delete("/cancelFriendRequest/:id", cancelFriendRequest);
 
 // ---------------------  PATCH ---------------------
 
