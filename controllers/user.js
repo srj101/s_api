@@ -664,10 +664,11 @@ export const updateUser = async (req, res, next) => {
 
   const { id } = req.user;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
   try {
     if (password) {
+      const hashedPassword = await bcrypt.hash(password, 12);
+      console.log(hashedPassword);
+      console.log(password);
       if (req.file) {
         user = await prisma.user.update({
           where: {
@@ -679,8 +680,7 @@ export const updateUser = async (req, res, next) => {
             profilePicture: req.file.path.split("public/")[1],
           },
         });
-      }
-      else {
+      } else {
         user = await prisma.user.update({
           where: {
             id: parseInt(id),
@@ -691,8 +691,7 @@ export const updateUser = async (req, res, next) => {
           },
         });
       }
-    }
-    else {
+    } else {
       if (req.file) {
         user = await prisma.user.update({
           where: {
@@ -703,8 +702,7 @@ export const updateUser = async (req, res, next) => {
             profilePicture: req.file.path.split("public/")[1],
           },
         });
-      }
-      else {
+      } else {
         user = await prisma.user.update({
           where: {
             id: parseInt(id),
