@@ -3,6 +3,8 @@ import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma/prisma.js";
 
+
+// @route POST api/community/create to create a community 
 export const createCommunity = async (req, res, next) => {
   let { name, description, sportId, members = [] } = req.body;
   const { id } = req.user;
@@ -87,7 +89,7 @@ export const getMembersByCommunity = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// @route GET api/community/communities to get all communities by user
 export const getCommunitiesByUser = async (req, res, next) => {
   const { userId } = req.query;
   const { page, limit, search } = req.query;
@@ -132,6 +134,7 @@ export const getCommunitiesByUser = async (req, res, next) => {
   }
 };
 
+// @route GET api/community/communitiesList to get all communities
 export const getCommunities = async (req, res, next) => {
   const { page, limit, suggestCommunitySearch } = req.query;
   const currentPage = page || 1;
@@ -219,7 +222,7 @@ export const getCommunities = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// @route GET api/community/communities/:id to get a community by id
 export const getCommunityById = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -269,6 +272,7 @@ export const getCommunityById = async (req, res, next) => {
   }
 };
 
+// @route GET api/community/myCommunities to get all communities by user
 export const getMyCommunity = async (req, res, next) => {
   const { id } = req.user;
   const { page, limit } = req.query;
@@ -288,6 +292,7 @@ export const getMyCommunity = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+// @route  POST api/community/isAlreadyMemeber/:id to check if user is already member of community
 export const AlreadyMemeber = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -313,6 +318,9 @@ export const AlreadyMemeber = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+
+// @route GET api/community/ownerInfo to get owner info
 export const getCommunityOwnerInfo = async (req, res, next) => {
   const { id } = req.params;
   console.log(id);
@@ -341,6 +349,7 @@ export const getCommunityOwnerInfo = async (req, res, next) => {
   }
 };
 
+// @route DELETE api/community/deleteCommunity/:id to delete community
 export const deleteCommunity = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -369,6 +378,7 @@ export const deleteCommunity = async (req, res, next) => {
   }
 };
 
+// @route POST api/community/joinCommunity/:id to join community
 export const joinCommunity = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -412,6 +422,8 @@ export const joinCommunity = async (req, res, next) => {
   }
 };
 
+// @route POST api/community/leaveCommunity/:id to leave community
+
 export const leaveCommunity = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -454,6 +466,8 @@ export const leaveCommunity = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+// @route DELETE api/community/deleteMember to delete member from community
 
 export const deleteMember = async (req, res, next) => {
   const { id, memberId } = req.query;

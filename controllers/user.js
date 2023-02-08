@@ -24,6 +24,8 @@ export const getUser = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+// @route GET api/auth/user/finduser/:id - Get user by id
 export const getUserById = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -104,7 +106,7 @@ export const acceptFriendRequest = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// Route to cancel friend request
 export const cancelFriendRequest = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -393,6 +395,7 @@ export const getFriendRequestSent = async (req, res, next) => {
     return res.status(500).json({ error });
   }
 };
+// Route to check if a user has a friend request
 export const hasFriendRequest = async (req, res, next) => {
   const { id } = req.user;
   try {
@@ -464,6 +467,7 @@ export const getFriendRequestReceivedByUser = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+// route to check if a user is a friend
 export const getIsFriend = async (req, res, next) => {
   let { id } = req.params;
   let { id: userId } = req.user;
@@ -494,6 +498,8 @@ export const getIsFriend = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+// route to check if the user has sent a friend request
 export const getIsFriendReqSent = async (req, res, next) => {
   let { id } = req.params;
   let { id: userId } = req.user;
@@ -521,7 +527,7 @@ export const getIsFriendReqSent = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// route to check if a user has received a friend request
 export const getIsFriendReqReceived = async (req, res, next) => {
   let { id } = req.params;
   let { id: userId } = req.user;
@@ -655,6 +661,8 @@ export const getMessagesByUser = async (req, res, next) => {
   });
   return res.status(200).json({ messages });
 };
+
+// route to update user profile
 export const updateUser = async (req, res, next) => {
   const { firstName, lastName, location, password } = req.body;
 
@@ -926,7 +934,7 @@ export const updatePost = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// route to check if a post is liked
 export const IsLiked = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -955,7 +963,7 @@ export const IsLiked = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// Route to check if a post is disliked
 export const IsDisliked = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -985,6 +993,7 @@ export const IsDisliked = async (req, res, next) => {
   }
 };
 
+// Route to dislike a post
 export const DisLikePost = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -1038,6 +1047,7 @@ export const DisLikePost = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+// route to like a post
 export const LikePost = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -1092,7 +1102,7 @@ export const LikePost = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// Route to remove a like
 export const LikeRemove = async (req, res, next) => {
   const { id } = req.body;
   const { id: userId } = req.user;
@@ -1125,7 +1135,7 @@ export const LikeRemove = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// Route to remove dislike
 export const DisLikeRemove = async (req, res, next) => {
   const { id } = req.body;
   const { id: userId } = req.user;

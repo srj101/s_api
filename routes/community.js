@@ -72,6 +72,6 @@ router.put("/updateCommunity/:id", updateCommunity);
 // ---------------------  DELETE ---------------------
 router.delete("/deleteCommunity/:id", deleteCommunity);
 router.delete("/leaveCommunity/:id", leaveCommunity);
-router.delete("/deleteMember/", deleteMember);
+router.delete("/deleteMember", deleteMember);
 
 export default router;

@@ -1,6 +1,6 @@
 import { createError } from "../utils/error.js";
 import prisma from "../prisma/prisma.js";
-
+// route to get all sports
 export const getSports = async (req, res, next) => {
   const { page, limit, searchQuery } = req.query;
   const currentPage = page || 1;
@@ -33,6 +33,7 @@ export const getSports = async (req, res, next) => {
   }
 };
 
+// route to find sports interest by user id
 export const findSportsInterestByUserID = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -50,6 +51,7 @@ export const findSportsInterestByUserID = async (req, res, next) => {
   }
 };
 
+// route to create a sport
 export const createSport = async (req, res, next) => {
   const { name } = req.body;
   if (!name) {
@@ -66,7 +68,7 @@ export const createSport = async (req, res, next) => {
     return res.status(400).json({ message: "Something went wrong" });
   }
 };
-
+// route to get a sport by id
 export const getSportById = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -81,7 +83,7 @@ export const getSportById = async (req, res, next) => {
     return res.status(400).json("Sports Doesn't Found");
   }
 };
-
+// route to update a sport
 export const updateSport = async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -104,7 +106,7 @@ export const updateSport = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// route to delete a sport
 export const deleteSport = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -119,6 +121,7 @@ export const deleteSport = async (req, res, next) => {
   }
 };
 
+// route to get all sports users
 export const sportsUser = async (req, res, next) => {
   const { id } = req.params;
 
@@ -314,7 +317,7 @@ export const sportsUser = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// route to follow sport
 export const sportsFollow = async (req, res, next) => {
   const { sportId } = req.body;
   const { id: userId } = req.user;
@@ -340,7 +343,7 @@ export const sportsFollow = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
+// route to check if user is following a sport
 export const isFollowing = async (req, res, next) => {
   const { sportId } = req.query;
   const { id: userId } = req.user;
@@ -360,6 +363,8 @@ export const isFollowing = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+// route to unfollow sport
 
 export const UnFollowSport = async (req, res, next) => {
   const { sportId } = req.params;

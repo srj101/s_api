@@ -3,7 +3,7 @@ import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma/prisma.js";
 
-// @route POST api/auth/register
+// @route POST api/auth/register to register
 
 export const register = async (req, res, next) => {
   const { email, password, firstName, lastName, dob, gender, location } =
@@ -57,7 +57,7 @@ export const register = async (req, res, next) => {
   }
 };
 
-// @route POST api/auth/login
+// @route POST api/auth/login  to login
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
