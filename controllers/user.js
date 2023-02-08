@@ -658,7 +658,7 @@ export const getMessagesByUser = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   const { firstName, lastName, location, password } = req.body;
 
-  if (password.length < 6) {
+  if (password !== "" && password.length < 6) {
     return res
       .status(400)
       .json({ message: "Password must be at least 6 characters" });
@@ -671,7 +671,7 @@ export const updateUser = async (req, res, next) => {
   const { id } = req.user;
 
   try {
-    if (password !== "" && password.length < 6 && pasasword.length) {
+    if (password !== "") {
       const hashedPassword = await bcrypt.hash(password, 12);
       console.log(hashedPassword);
       console.log(password);
