@@ -4,7 +4,7 @@ import { upload } from "../index.js";
 import prisma from "../prisma/prisma.js";
 import { createError } from "../utils/error.js";
 import bcrypt from "bcryptjs";
-
+import path from "path";
 // @route GET api/auth/user/me
 export const getUser = async (req, res, next) => {
   console.log(req.user.id);
@@ -658,6 +658,7 @@ export const getMessagesByUser = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   const { firstName, lastName, location, password } = req.body;
 
+  let user;
   if (firstName === "" || lastName === "")
     return res.status(400).json({ message: "Please fill all the fields" });
 
@@ -666,17 +667,54 @@ export const updateUser = async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    const user = await prisma.user.update({
-      where: {
-        id: parseInt(id),
-      },
-      data: {
-        ...req.body,
-        password: hashedPassword,
-        profilePicture: req.file.path.split("public/")[1],
-      },
-    });
-
+    if (password) {
+      if (req.file) {
+        user = await prisma.user.update({
+          where: {
+            id: parseInt(id),
+          },
+          data: {
+            ...req.body,
+            password: hashedPassword,
+            profilePicture: req.file.path.split("public/")[1],
+          },
+        });
+      }
+      else {
+        user = await prisma.user.update({
+          where: {
+            id: parseInt(id),
+          },
+          data: {
+            ...req.body,
+            password: hashedPassword,
+          },
+        });
+      }
+    }
+    else {
+      if (req.file) {
+        user = await prisma.user.update({
+          where: {
+            id: parseInt(id),
+          },
+          data: {
+            ...req.body,
+            profilePicture: req.file.path.split("public/")[1],
+          },
+        });
+      }
+      else {
+        user = await prisma.user.update({
+          where: {
+            id: parseInt(id),
+          },
+          data: {
+            ...req.body,
+          },
+        });
+      }
+    }
     return res.status(200).json({ user });
   } catch (error) {
     return res.status(400).json({ error: error.message });

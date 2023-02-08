@@ -6,10 +6,10 @@ import prisma from "../prisma/prisma.js";
 // @route POST api/auth/register
 
 export const register = async (req, res, next) => {
-  const { email, password, firstName, lastName, dob } = req.body;
+  const { email, password, firstName, lastName, dob, gender, location } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 12);
-  if (!email || !password || !firstName || !lastName || !dob) {
+  if (!email || !password || !firstName || !lastName || !dob || !gender || !location) {
     return res.status(400).json({ message: "Please enter all fields" });
   }
 
@@ -34,6 +34,8 @@ export const register = async (req, res, next) => {
         lastName,
         dob: new Date(dob),
         age: age,
+        gender: gender,
+        location: location,
         fullName: `${firstName} ${lastName}`,
       },
     });
