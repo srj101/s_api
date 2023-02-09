@@ -6,11 +6,14 @@ import prisma from "../prisma/prisma.js";
 
 // @route POST api/community/create to create a community 
 export const createCommunity = async (req, res, next) => {
-  let { name, description, sportId, members = [] } = req.body;
+  let { name, description, sportId, members } = req.body;
   const { id } = req.user;
-  console.log(req.body);
-  members = members.split(",").map((memeber) => parseInt(memeber));
-  members.push(id);
+
+  members.replace('[', '');
+  members.replace(']', '');
+  members.replace(',', '')
+  members = JSON.parse(members)
+
   if (!name || !description || !sportId) {
     return res.status(400).json({ message: "Please fill all the fields" });
   }
@@ -19,28 +22,53 @@ export const createCommunity = async (req, res, next) => {
     return res.status(400).json({ message: "Please add atleast 3 members" });
   }
   try {
-    const community = await prisma.community.create({
-      data: {
-        name: name,
-        description: description,
-        sportId: parseInt(sportId),
-        ownerId: parseInt(id),
-        image: req.file.path.split("public/")[1],
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        sportId: true,
-        ownerId: true,
-        image: true,
-      },
-    });
+    let community;
+    if (req.file) {
+      community = await prisma.community.create({
+        data: {
+          name: name,
+          description: description,
+          sportId: parseInt(sportId),
+          ownerId: parseInt(id),
+          image: req.file.path.split("public/")[1],
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          sportId: true,
+          ownerId: true,
+          image: true,
+        },
+      });
+
+    }
+    else {
+      community = await prisma.community.create({
+        data: {
+          name: name,
+          description: description,
+          sportId: parseInt(sportId),
+          ownerId: parseInt(id),
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          sportId: true,
+          ownerId: true,
+          image: true,
+        },
+      });
+
+    }
+    console.log(members)
 
     const m = await prisma.communityMembers.createMany({
-      data: members.map((memeber) => ({
-        userId: parseInt(memeber),
-        communityId: community.id,
+      data: members.map((member) => ({
+
+        userId: parseInt(member),
+        communityId: parseInt(community.id),
       })),
     });
 
@@ -489,9 +517,6 @@ export const deleteMember = async (req, res, next) => {
         communityId: parseInt(id),
         userId: parseInt(memberId),
       },
-      select: {
-        id: true,
-      },
     });
 
     if (!isAlreadyMember) {
@@ -502,7 +527,7 @@ export const deleteMember = async (req, res, next) => {
 
     const isOwner = await prisma.community.findFirst({
       where: {
-        id: isAlreadyMember.id,
+        id: parseInt(id),
         ownerId: parseInt(userId),
       },
     });
@@ -519,7 +544,7 @@ export const deleteMember = async (req, res, next) => {
 
     const deleteMember = await prisma.communityMembers.delete({
       where: {
-        id: parseInt(id),
+        id: parseInt(isAlreadyMember.id)
       },
     });
     return res.status(200).json({ deleteMember });

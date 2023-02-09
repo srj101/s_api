@@ -24,8 +24,6 @@ export const getUser = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
-// @route GET api/auth/user/finduser/:id - Get user by id
 export const getUserById = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -106,7 +104,7 @@ export const acceptFriendRequest = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// Route to cancel friend request
+
 export const cancelFriendRequest = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -395,7 +393,6 @@ export const getFriendRequestSent = async (req, res, next) => {
     return res.status(500).json({ error });
   }
 };
-// Route to check if a user has a friend request
 export const hasFriendRequest = async (req, res, next) => {
   const { id } = req.user;
   try {
@@ -467,7 +464,6 @@ export const getFriendRequestReceivedByUser = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// route to check if a user is a friend
 export const getIsFriend = async (req, res, next) => {
   let { id } = req.params;
   let { id: userId } = req.user;
@@ -498,8 +494,6 @@ export const getIsFriend = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-
-// route to check if the user has sent a friend request
 export const getIsFriendReqSent = async (req, res, next) => {
   let { id } = req.params;
   let { id: userId } = req.user;
@@ -527,7 +521,7 @@ export const getIsFriendReqSent = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// route to check if a user has received a friend request
+
 export const getIsFriendReqReceived = async (req, res, next) => {
   let { id } = req.params;
   let { id: userId } = req.user;
@@ -661,17 +655,8 @@ export const getMessagesByUser = async (req, res, next) => {
   });
   return res.status(200).json({ messages });
 };
-
-// route to update user profile
 export const updateUser = async (req, res, next) => {
-  const { firstName, lastName, location, password } = req.body;
-
-  if (password !== "" && password.length < 6) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 6 characters" });
-  }
-
+  const { firstName, lastName, location } = req.body;
   let user;
   if (firstName === "" || lastName === "")
     return res.status(400).json({ message: "Please fill all the fields" });
@@ -679,59 +664,63 @@ export const updateUser = async (req, res, next) => {
   const { id } = req.user;
 
   try {
-    if (password !== "") {
-      const hashedPassword = await bcrypt.hash(password, 12);
-      console.log(hashedPassword);
-      console.log(password);
-      if (req.file) {
-        user = await prisma.user.update({
-          where: {
-            id: parseInt(id),
-          },
-          data: {
-            ...req.body,
-            password: hashedPassword,
-            profilePicture: req.file.path.split("public/")[1],
-          },
-        });
-      } else {
-        user = await prisma.user.update({
-          where: {
-            id: parseInt(id),
-          },
-          data: {
-            ...req.body,
-            password: hashedPassword,
-          },
-        });
-      }
-    } else {
-      if (req.file) {
-        user = await prisma.user.update({
-          where: {
-            id: parseInt(id),
-          },
-          data: {
-            ...req.body,
-            profilePicture: req.file.path.split("public/")[1],
-          },
-        });
-      } else {
-        user = await prisma.user.update({
-          where: {
-            id: parseInt(id),
-          },
-          data: {
-            ...req.body,
-          },
-        });
-      }
+
+    if (req.file) {
+      user = await prisma.user.update({
+        where: {
+          id: parseInt(id),
+        },
+        data: {
+          ...req.body,
+          profilePicture: req.file.path.split("public/")[1],
+        },
+      });
+    }
+    else {
+      user = await prisma.user.update({
+        where: {
+          id: parseInt(id),
+        },
+        data: {
+          ...req.body,
+        },
+      });
     }
     return res.status(200).json({ user });
-  } catch (error) {
+  }
+
+
+  catch (error) {
     return res.status(400).json({ error: error.message });
   }
 };
+
+// update user password
+export const updatePassword = async (req, res, next) => {
+  const { password } = req.body;
+  console.log(req.body)
+  const { id } = req.user;
+  if (password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+  const hashedPassword = await bcrypt.hash(password, 12);
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    return res.status(200).json({ user });
+  }
+  catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+
+}
 
 // update user cover photo
 export const updateUserCover = async (req, res, next) => {
@@ -934,7 +923,7 @@ export const updatePost = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// route to check if a post is liked
+
 export const IsLiked = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -963,7 +952,7 @@ export const IsLiked = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// Route to check if a post is disliked
+
 export const IsDisliked = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -993,7 +982,6 @@ export const IsDisliked = async (req, res, next) => {
   }
 };
 
-// Route to dislike a post
 export const DisLikePost = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -1047,7 +1035,6 @@ export const DisLikePost = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// route to like a post
 export const LikePost = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.user;
@@ -1102,7 +1089,7 @@ export const LikePost = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// Route to remove a like
+
 export const LikeRemove = async (req, res, next) => {
   const { id } = req.body;
   const { id: userId } = req.user;
@@ -1135,7 +1122,7 @@ export const LikeRemove = async (req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 };
-// Route to remove dislike
+
 export const DisLikeRemove = async (req, res, next) => {
   const { id } = req.body;
   const { id: userId } = req.user;

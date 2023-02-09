@@ -23,6 +23,7 @@ import {
   hasFriendRequest,
   sendFriendRequest,
   sendMessage,
+  updatePassword,
   updateUser,
   updateUserCover,
 } from "../controllers/user.js";
@@ -87,10 +88,11 @@ router.post("/acceptFriendRequest/:id", acceptFriendRequest);
 // Conversation
 router.post("/createConversation", createConversation);
 router.post("/sendMessage/:id", sendMessage);
-
+router.post("/changePassword", updatePassword);
 // ---------------------  UPDATE ---------------------
 router.put("/updateUser", upload.single("profilePicture"), updateUser);
 router.put("/updateUserCover", upload.single("coverPicture"), updateUserCover);
+
 // ---------------------  DELETE ---------------------
 // Friend Requests
 router.delete("/declineFriendRequest/:id", declineFriendRequest);
