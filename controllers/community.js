@@ -8,11 +8,13 @@ import prisma from "../prisma/prisma.js";
 export const createCommunity = async (req, res, next) => {
   let { name, description, sportId, members } = req.body;
   const { id } = req.user;
+  console.log(members)
 
-  members.replace('[', '');
-  members.replace(']', '');
-  members.replace(',', '')
   members = JSON.parse(members)
+  members.push(id)
+  console.log(members)
+  console.log(typeof (members))
+  console.log(Object.entries(members))
 
   if (!name || !description || !sportId) {
     return res.status(400).json({ message: "Please fill all the fields" });
@@ -21,6 +23,9 @@ export const createCommunity = async (req, res, next) => {
   if (members.length < 3) {
     return res.status(400).json({ message: "Please add atleast 3 members" });
   }
+  const x = Object.entries(members).map((item) => (item[1]));
+
+
   try {
     let community;
     if (req.file) {
@@ -62,13 +67,11 @@ export const createCommunity = async (req, res, next) => {
       });
 
     }
-    console.log(members)
 
     const m = await prisma.communityMembers.createMany({
-      data: members.map((member) => ({
-
-        userId: parseInt(member),
-        communityId: parseInt(community.id),
+      data: x.map(id => ({
+        communityId: community.id,
+        userId: parseInt(id),
       })),
     });
 
