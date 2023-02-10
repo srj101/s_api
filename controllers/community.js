@@ -3,18 +3,17 @@ import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma/prisma.js";
 
-
-// @route POST api/community/create to create a community 
+// @route POST api/community/create to create a community
 export const createCommunity = async (req, res, next) => {
   let { name, description, sportId, members } = req.body;
   const { id } = req.user;
-  console.log(members)
+  console.log(members);
 
-  members = JSON.parse(members)
-  members.push(id)
-  console.log(members)
-  console.log(typeof (members))
-  console.log(Object.entries(members))
+  members = JSON.parse(members);
+  members.push(id);
+  console.log(members);
+  console.log(typeof members);
+  console.log(Object.entries(members));
 
   if (!name || !description || !sportId) {
     return res.status(400).json({ message: "Please fill all the fields" });
@@ -23,8 +22,7 @@ export const createCommunity = async (req, res, next) => {
   if (members.length < 3) {
     return res.status(400).json({ message: "Please add atleast 3 members" });
   }
-  const x = Object.entries(members).map((item) => (item[1]));
-
+  const x = Object.entries(members).map((item) => item[1]);
 
   try {
     let community;
@@ -46,9 +44,7 @@ export const createCommunity = async (req, res, next) => {
           image: true,
         },
       });
-
-    }
-    else {
+    } else {
       community = await prisma.community.create({
         data: {
           name: name,
@@ -65,11 +61,10 @@ export const createCommunity = async (req, res, next) => {
           image: true,
         },
       });
-
     }
 
     const m = await prisma.communityMembers.createMany({
-      data: x.map(id => ({
+      data: x.map((id) => ({
         communityId: community.id,
         userId: parseInt(id),
       })),
@@ -350,7 +345,6 @@ export const AlreadyMemeber = async (req, res, next) => {
   }
 };
 
-
 // @route GET api/community/ownerInfo to get owner info
 export const getCommunityOwnerInfo = async (req, res, next) => {
   const { id } = req.params;
@@ -547,7 +541,7 @@ export const deleteMember = async (req, res, next) => {
 
     const deleteMember = await prisma.communityMembers.delete({
       where: {
-        id: parseInt(isAlreadyMember.id)
+        id: parseInt(isAlreadyMember.id),
       },
     });
     return res.status(200).json({ deleteMember });
@@ -562,6 +556,11 @@ export const updateCommunity = async (req, res, next) => {
   const { id: userId } = req.user;
   const { name, description, sportId } = req.body;
 
+  const data = {
+    name,
+    description,
+    sportId: parseInt(sportId),
+  };
   try {
     const hasAccess = await prisma.community.findMany({
       where: {
@@ -579,9 +578,7 @@ export const updateCommunity = async (req, res, next) => {
         id: parseInt(id),
       },
       data: {
-        name: name,
-        description: description,
-        sportId: parseInt(sportId),
+        ...data,
       },
     });
     return res.status(200).json({ community });
