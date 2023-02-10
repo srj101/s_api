@@ -562,9 +562,7 @@ export const updateCommunity = async (req, res, next) => {
     sportId: parseInt(sportId),
   };
 
-  if (req.file) {
-    data.image = req.file.path.split("/public")[1];
-  }
+  console.log(data);
 
   try {
     const hasAccess = await prisma.community.findMany({
@@ -573,6 +571,11 @@ export const updateCommunity = async (req, res, next) => {
         ownerId: parseInt(userId),
       },
     });
+    if (req.file) {
+      data.image = req.file.path.split("/public")[1];
+    } else {
+      data.image = hasAccess[0].image;
+    }
     if (!hasAccess) {
       return res
         .status(400)
