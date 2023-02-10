@@ -559,7 +559,6 @@ export const updateCommunity = async (req, res, next) => {
   let data = {
     name,
     description,
-    sportId: parseInt(sportId),
   };
 
   console.log(req.params);
@@ -575,6 +574,11 @@ export const updateCommunity = async (req, res, next) => {
       data.image = req.file.path.split("public/")[1];
     } else {
       data.image = hasAccess[0].image;
+    }
+    if (sportId) {
+      data.sportId = parseInt(sportId);
+    } else {
+      data.sportId = hasAccess[0].sportId;
     }
     if (!hasAccess) {
       return res
