@@ -68,7 +68,7 @@ router.get("/isAlreadyMemeber/:id", AlreadyMemeber);
 router.post("/createCommunity", upload.single("image"), createCommunity);
 router.post("/joinCommunity/:id", joinCommunity);
 // ---------------------  PUT ---------------------
-router.put("/updateCommunity/:id", updateCommunity);
+router.put("/updateCommunity/:id", upload.single("image"), updateCommunity);
 // ---------------------  DELETE ---------------------
 router.delete("/deleteCommunity/:id", deleteCommunity);
 router.delete("/leaveCommunity/:id", leaveCommunity);

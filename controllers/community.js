@@ -556,11 +556,16 @@ export const updateCommunity = async (req, res, next) => {
   const { id: userId } = req.user;
   const { name, description, sportId } = req.body;
 
-  const data = {
+  let data = {
     name,
     description,
     sportId: parseInt(sportId),
   };
+
+  if (req.file) {
+    data.image = req.file.path.split("/public")[1];
+  }
+
   try {
     const hasAccess = await prisma.community.findMany({
       where: {
